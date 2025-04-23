@@ -1,4 +1,3 @@
-import { post } from '../../client/src/utils/api/apiService.js';
 import pool from '../config/database.js';
 // import * as postModel from '../models/postModel.js';
 
