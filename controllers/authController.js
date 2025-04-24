@@ -74,6 +74,8 @@ export const addAccount = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log('Username', username);
+    console.log('Password', password);
     
     // Find user in database
     const user = await userModel.findUserByUsername(username);
