@@ -708,6 +708,7 @@ export const viewSurvey = async (req, res) => {
 export const deleteSurvey = async (req, res) => {
   const connection = await pool.getConnection();
   const surveyID = req.params.surveyID;
+  const populationID = req.params.populationID;
   console.log(req.params)
   try {
     await connection.beginTransaction();
@@ -733,12 +734,12 @@ export const deleteSurvey = async (req, res) => {
     await connection.query('DELETE FROM FoodExpenses WHERE surveyID = ?', [surveyID]);
     
 
-    await connection.query('DELETE FROM NonIvatan WHERE surveyID = ?', [surveyID]);
-    await connection.query('DELETE FROM GovernmentAffiliation WHERE surveyID = ?', [surveyID]);
-    await connection.query('DELETE FROM ContactInformation WHERE surveyID = ?', [surveyID]);
-    await connection.query('DELETE FROM ProfessionalInformation WHERE surveyID = ?', [surveyID]);
-    await connection.query('DELETE FROM ProfessionalInformation WHERE surveyID = ?', [surveyID]);
-    await connection.query('DELETE FROM Population WHERE surveyID = ?', [surveyID]);
+    await connection.query('DELETE FROM NonIvatan WHERE populationID = ?', [populationID]);
+    await connection.query('DELETE FROM GovernmentAffiliation WHERE populationID = ?', [populationID]);
+    await connection.query('DELETE FROM ContactInformation WHERE populationID = ?', [populationID]);
+    await connection.query('DELETE FROM ProfessionalInformation WHERE populationID = ?', [populationID]);
+    await connection.query('DELETE FROM ProfessionalInformation WHERE populationID = ?', [populationID]);
+    await connection.query('DELETE FROM Population WHERE populationID = ?', [populationID]);
     
     await connection.query('DELETE FROM Households WHERE surveyID = ?', [surveyID]);
 
