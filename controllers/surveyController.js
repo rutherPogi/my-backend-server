@@ -32,6 +32,7 @@ export const submitSurvey = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    console.log('JSON', req.body.surveyData);
     // Parse the surveyData JSON string
     const surveyData = JSON.parse(req.body.surveyData);
     const surveyID = surveyData.surveyData.surveyID;
