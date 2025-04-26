@@ -1,5 +1,4 @@
-// models/surveyModel.js - Survey-related database operations
-import pool from '../config/database.js';
+
 
 export const generateSurveyId = async (connection) => {
   // Get current date components
@@ -120,7 +119,7 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
     member.lastName,
     member.suffix || 'N/A',
     member.birthdate ? member.birthdate.split('T')[0] : null,
-    member.age,
+    member.age || member.formattedAge,
     member.sex,
     member.birthplace || 'N/A',
     member.religion || 'N/A',

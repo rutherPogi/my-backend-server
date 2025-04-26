@@ -74,8 +74,7 @@ export const addAccount = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log('Username', username);
-    console.log('Password', password);
+    console.log('Logging in:', username);
     
     // Find user in database
     const user = await userModel.findUserByUsername(username);
@@ -94,9 +93,10 @@ export const login = async (req, res) => {
       userID: user.userID,
       username: user.username,
       accountName: user.accountName,
-      position: user.position
+      position: user.position,
+      barangay: user.barangay
     });
-    console.log(user);
+
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ error: "Error during login", details: err.message });

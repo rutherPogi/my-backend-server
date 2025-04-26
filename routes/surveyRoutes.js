@@ -26,7 +26,7 @@ router.get('/list', authenticateToken, surveyController.listSurvey);
 
 router.get('/view/:surveyID', authenticateToken, surveyController.viewSurvey);
 
-router.delete('/delete/:surveyID/:populationID', authenticateToken, surveyController.deleteSurvey);
+router.delete('/delete/:surveyID', authenticateToken, surveyController.deleteSurvey);
 
 
 
