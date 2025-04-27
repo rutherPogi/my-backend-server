@@ -10,7 +10,7 @@ export const generateSoloParentId = async (connection) => {
   try {
     // Get the current sequence for today
     const [rows] = await connection.query(
-      `SELECT MAX(spApplicationID) as maxId FROM soloParentApplication 
+      `SELECT MAX(spApplicationID) as maxId FROM SoloParentApplication 
        WHERE spApplicationID LIKE ?`,
       [`SP${datePrefix}%`]
     );
@@ -28,7 +28,7 @@ export const generateSoloParentId = async (connection) => {
     
     // Verify this ID doesn't already exist (double-check)
     const [existingCheck] = await connection.query(
-      `SELECT COUNT(*) as count FROM soloParentApplication WHERE spApplicationID = ?`,
+      `SELECT COUNT(*) as count FROM SoloParentApplication WHERE spApplicationID = ?`,
       [soloParentID]
     );
     
@@ -56,7 +56,7 @@ export const createSoloParentApplicant = async (spApplicationID, photoID, signat
     const applicantID = applicantResult.insertId;
     
     await connection.query(
-      `INSERT INTO soloParentApplication (
+      `INSERT INTO SoloParentApplication (
         spApplicationID,
         applicantID, 
         caseNumber,
