@@ -186,7 +186,7 @@ export const manageSoloParentId = async (req, res) => {
           pi.middleName,
           pi.lastName,
           pi.suffix
-        FROM soloParentApplication sp
+        FROM SoloParentApplication sp
         LEFT JOIN PersonalInformation pi ON sp.applicantID = pi.applicantID
         ORDER BY dateApplied ASC;`);
 
@@ -351,7 +351,7 @@ export const deleteApplication = async (req, res) => {
     await connection.beginTransaction();
 
     const [rows] = await connection.query(
-      'SELECT applicantID FROM soloParentApplication WHERE spApplicationID = ?',
+      'SELECT applicantID FROM SoloParentApplication WHERE spApplicationID = ?',
       [spApplicationID]
     );
 
@@ -371,7 +371,7 @@ export const deleteApplication = async (req, res) => {
     await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
     await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
 
-    await connection.query('DELETE FROM soloParentApplication WHERE spApplicationID = ?', [spApplicationID]);
+    await connection.query('DELETE FROM SoloParentApplication WHERE spApplicationID = ?', [spApplicationID]);
     
     
     await connection.commit();
@@ -404,7 +404,7 @@ export const viewApplication = async (req, res) => {
   try {
 
     const [applicantRows] = await connection.query(`
-      SELECT applicantID FROM soloParentApplication WHERE spApplicationID = ?
+      SELECT applicantID FROM SoloParentApplication WHERE spApplicationID = ?
     `, [spApplicationID]);
     
     const applicantID = applicantRows[0]?.applicantID;
@@ -423,7 +423,7 @@ export const viewApplication = async (req, res) => {
         proi.*,
         ci.*,
         oi.*
-      FROM soloParentApplication sp
+      FROM SoloParentApplication sp
       LEFT JOIN GovernmentIDs gov 
         ON sp.applicantID = gov.applicantID
       LEFT JOIN PersonalInformation pi 
@@ -461,7 +461,7 @@ export const viewApplication = async (req, res) => {
 
     console.log('Retrieving Photo ID and Signature');
     const [rows] = await connection.query(`
-      SELECT photoID, signature FROM soloParentApplication
+      SELECT photoID, signature FROM SoloParentApplication
       WHERE spApplicationID = ?
     `, [spApplicationID]);
 
