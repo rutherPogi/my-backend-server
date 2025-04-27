@@ -1,47 +1,46 @@
 import pool from '../config/database.js';
 
-export const generatePwdId = async (connection) => {
-  // Get current date components
+export const generatePwdId = async (connection, barangayCode) => {
   const now = new Date();
   const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
   const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Month (01-12)
-  const datePrefix = `${year}${month}`;
-  
+
   try {
-    // Get the current sequence for today
+    // Look for the max existing ID for the same year-month-barangay
     const [rows] = await connection.query(
       `SELECT MAX(pwdApplicationID) as maxId FROM pwdApplication 
        WHERE pwdApplicationID LIKE ?`,
-      [`PWD${datePrefix}%`]
+      [`RR-${year}${month}-${barangayCode}-%`]
     );
-    
+
     let sequence = 1;
     if (rows[0].maxId) {
-      // Extract the sequence number from the existing ID
-      const currentSequence = parseInt(rows[0].maxId.toString().slice(9));
+      // Extract the 7-digit sequence number
+      const currentSequence = parseInt(rows[0].maxId.toString().split('-')[3]);
       sequence = currentSequence + 1;
     }
-    
-    // Format as YYMMDDXXXX where XXXX is the sequence number
-    const sequenceStr = sequence.toString().padStart(4, '0');
-    const pwdID = `PWD${datePrefix}${sequenceStr}`;
-    
-    // Verify this ID doesn't already exist (double-check)
+
+    // Format the sequence with 7 digits
+    const sequenceStr = sequence.toString().padStart(7, '0');
+    const pwdID = `RR-${year}${month}-${barangayCode}-${sequenceStr}`;
+
+    // Double-check if this ID exists
     const [existingCheck] = await connection.query(
       `SELECT COUNT(*) as count FROM pwdApplication WHERE pwdApplicationID = ?`,
       [pwdID]
     );
-    
+
     if (existingCheck[0].count > 0) {
-      // In the unlikely event of a collision, recursively try again
-      return generatePwdId(connection);
+      return generatePwdId(connection, barangayCode); // Recursive call if collision
     }
-    return pwdID;
+
+    return { pwdApplicationID: pwdID };
   } catch (error) {
     console.error('Error generating pwd ID:', error);
     throw error;
   }
 };
+
 
 export const createPWDApplicant = async (pwdApplicationID, applicationData, photoID, signature, connection) => {
 
@@ -222,7 +221,7 @@ export const createPWDApplicant = async (pwdApplicationID, applicationData, phot
   }
 };
 
-export const addPersonalInfo = async (applicantID, personalInfo, connection) => {
+export const addPersonalInfo = async (applicantID, pwdApplicationID, personalInfo, connection) => {
 
   await connection.beginTransaction();
 
@@ -242,7 +241,7 @@ export const addPersonalInfo = async (applicantID, personalInfo, connection) => 
         personalInfo.sex,
         personalInfo.civilStatus,
         personalInfo.bloodType,
-        personalInfo.pwdIDNumber || 123 ]
+        pwdApplicationID ]
     );
 
     await connection.query(

@@ -36,7 +36,8 @@ export const generateSoloParentId = async (connection) => {
       // In the unlikely event of a collision, recursively try again
       return generateSoloParentId(connection);
     }
-    return soloParentID;
+
+    return { spApplicationID: soloParentID };
   } catch (error) {
     console.error('Error generating Solo Parent ID:', error);
     throw error;
@@ -83,7 +84,7 @@ export const createSoloParentApplicant = async (spApplicationID, photoID, signat
   
 };
 
-export const addPersonalInfo = async (applicantID, personalInfo, connection) => {
+export const addPersonalInfo = async (applicantID, spApplicationID, personalInfo, connection) => {
 
   await connection.beginTransaction();
 
@@ -115,7 +116,7 @@ export const addPersonalInfo = async (applicantID, personalInfo, connection) => 
         personalInfo.civilStatus,
         personalInfo.birthplace,
         personalInfo.religion,
-        personalInfo.soloParentIDNumber ]
+        spApplicationID ]
     );
 
     await connection.query(

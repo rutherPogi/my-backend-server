@@ -15,9 +15,7 @@ import databankRoutes from './routes/databankRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-//app.use(cors());
-
+app.use(cors());
 
 app.use(cors({
   origin: 'https://e-tbayatmswdo.com',
@@ -27,23 +25,6 @@ app.use(cors({
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// 🔄 Track last request time
-let lastRequestTime = Date.now();
-app.use((req, res, next) => {
-  lastRequestTime = Date.now();
-  next();
-});
-
-// 💤 Shutdown if idle for 5 minutes
-const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  if (now - lastRequestTime > IDLE_TIMEOUT) {
-    console.log("Server idle for 5 minutes. Shutting down...");
-    process.exit(); // exits the Railway container
-  }
-}, 60 * 1000); // check every minute
 
 
 // Routes

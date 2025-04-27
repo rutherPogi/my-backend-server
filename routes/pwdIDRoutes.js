@@ -5,7 +5,7 @@ import { uploadToMemory, processImageForDatabase } from '../middlewares/multer.j
 
 const router = express.Router();
 
-router.get('/generate', authenticateToken, pwdIDControllers.getNewPwdId);
+//router.get('/generate', authenticateToken, pwdIDControllers.getNewPwdId);
 
 router.post('/submit', 
   authenticateToken,

@@ -32,9 +32,10 @@ export const submitSeniorCitizenID = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    const { scApplicationID } = await seniorCitizenIDModel.generateSeniorCitizenId(connection);
+
     const applicationData = JSON.parse(req.body.applicationData);
     const populationID = applicationData.personalInfo.populationID;
-    const scApplicationID = applicationData.personalInfo.scApplicationID;
 
     console.log('Application ID:', scApplicationID);
     console.log('Population ID:', populationID);
@@ -56,7 +57,7 @@ export const submitSeniorCitizenID = async (req, res) => {
       await seniorCitizenIDModel.updatePopulation(applicantID, populationID, applicationData.personalInfo, connection);
     } else {
       console.log("Inserting New Personal Info...");
-      await seniorCitizenIDModel.addPersonalInfo(applicantID, applicationData.personalInfo, connection);
+      await seniorCitizenIDModel.addPersonalInfo(applicantID, scApplicationID, applicationData.personalInfo, connection);
     }
 
     console.log("Inserting Family Composition...");
@@ -209,8 +210,6 @@ export const findID = async (req, res) => {
       });
     }
 
-    // First query for PersonalInformation records
-    // Use IFNULL or COALESCE to handle null values for optional fields
     const [results] = await connection.query(`
       SELECT 
         pi.personalInfoID,
@@ -224,7 +223,6 @@ export const findID = async (req, res) => {
         pi.birthdate,
         pi.sex,
         CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation,
-        COALESCE(p.isPWD, FALSE) AS isPWD
       FROM PersonalInformation pi
       LEFT JOIN Population p ON pi.populationID = p.populationID
       WHERE pi.firstName LIKE ?

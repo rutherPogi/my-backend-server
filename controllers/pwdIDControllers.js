@@ -2,39 +2,17 @@ import pool from '../config/database.js';
 import * as pwdIDModel from '../models/pwdIDModel.js';
 import * as updatepwdIDModel from '../models/updatepwdIDModel.js';
 
-export const getNewPwdId = async (req, res) => {
-  const connection = await pool.getConnection();
-  
-  try {
-    const pwdID = await pwdIDModel.generatePwdId(connection);
-    
-    res.status(200).json({ 
-      success: true, 
-      pwdID: pwdID 
-    });
-    
-  } catch (error) {
-    console.error('Error generating PWD ID:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error generating PWD ID', 
-      error: error.message 
-    });
-  } finally {
-    connection.release();
-  }
-};
-
 export const submitPwdId = async (req, res) => {
   
   const connection = await pool.getConnection();
   
   try {
     await connection.beginTransaction();
+
+    const { pwdApplicationID } = await pwdIDModel.generatePwdId(connection, 'ABC');
     
     const applicationData = JSON.parse(req.body.applicationData);
     const populationID = applicationData.personalInfo.populationID;
-    const pwdApplicationID = applicationData.personalInfo.pwdApplicationID;
 
     console.log('Application ID:', pwdApplicationID);
     console.log('Population ID:', populationID);
@@ -57,7 +35,7 @@ export const submitPwdId = async (req, res) => {
       await pwdIDModel.updatePopulation(applicantID, populationID, applicationData.personalInfo, connection);
     } else {
       console.log("Inserting New Personal Info...");
-      await pwdIDModel.addPersonalInfo(applicantID, applicationData.personalInfo, connection);
+      await pwdIDModel.addPersonalInfo(applicantID, pwdApplicationID, applicationData.personalInfo, connection);
     }
 
     console.log("Inserting Disability Info...");

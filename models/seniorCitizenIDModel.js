@@ -38,7 +38,7 @@ export const generateSeniorCitizenId = async (connection) => {
       return generateSeniorCitizenId(connection);
     }
 
-    return seniorCitizenID;
+    return { scApplicationID: seniorCitizenID };
   } catch (error) {
     console.error('Error generating Senior Citizen ID:', error);
     throw error;
@@ -82,7 +82,7 @@ export const createSeniorCitizenApplicant = async (scApplicationID, photoID, sig
   }
 };
 
-export const addPersonalInfo = async (applicantID, personalInfo, connection) => {
+export const addPersonalInfo = async (applicantID, scApplicationID, personalInfo, connection) => {
 
   await connection.beginTransaction();
 
@@ -112,7 +112,7 @@ export const addPersonalInfo = async (applicantID, personalInfo, connection) => 
         personalInfo.sex,
         personalInfo.civilStatus,
         personalInfo.birthplace,
-        personalInfo.seniorCitizenIDNumber || 123 ]
+        scApplicationID ]
     );
 
     await connection.query(

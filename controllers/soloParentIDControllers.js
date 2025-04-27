@@ -4,6 +4,7 @@ import * as updateSoloParentIDModel from '../models/updateSoloParentIDModel.js';
 
 
 export const getNewSoloParentId = async (req, res) => {
+
   const connection = await pool.getConnection();
   
   try {
@@ -31,11 +32,11 @@ export const submitSoloParentID = async (req, res) => {
   
   try {
     await connection.beginTransaction();
+
+    const { spApplicationID } = await soloParentIDModel.generateSoloParentId(connection);
     
     const applicationData = JSON.parse(req.body.applicationData);
-    console.log('APPLICATION:', applicationData);
     const populationID = applicationData.personalInfo.populationID;
-    const spApplicationID = applicationData.personalInfo.spApplicationID;
 
     console.log('Application ID:', spApplicationID);
     console.log('Population ID:', populationID);
@@ -57,7 +58,7 @@ export const submitSoloParentID = async (req, res) => {
       await soloParentIDModel.updatePopulation(applicantID, populationID, applicationData.personalInfo, connection);
     } else {
       console.log("Inserting Personal Info...");
-      await soloParentIDModel.addPersonalInfo(applicantID, applicationData.personalInfo, connection);
+      await soloParentIDModel.addPersonalInfo(applicantID, spApplicationID, applicationData.personalInfo, connection);
     }
     
     console.log("Inserting Other Info...");
@@ -205,7 +206,7 @@ export const findID = async (req, res) => {
   const connection = await pool.getConnection();
   
   try {
-    console.log('Finding Person ...');
+    console.log('Finding Persoan ...');
     console.log('Search params:', req.body);
     
     // Get search parameters from request body
@@ -219,22 +220,19 @@ export const findID = async (req, res) => {
       });
     }
 
-    // First query for PersonalInformation records
-    // Use IFNULL or COALESCE to handle null values for optional fields
     const [results] = await connection.query(`
       SELECT 
         pi.personalInfoID,
         pi.populationID,
-        pi.sPApplicationID,
-        pi.pwdIDNumber,
+        pi.applicantID,
+        pi.soloParentIDNumber,
         pi.firstName,
         pi.middleName,
         pi.lastName,
         pi.suffix,
         pi.birthdate,
         pi.sex,
-        CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation,
-        COALESCE(p.isPWD, FALSE) AS isPWD
+        CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation
       FROM PersonalInformation pi
       LEFT JOIN Population p ON pi.populationID = p.populationID
       WHERE pi.firstName LIKE ?
@@ -356,7 +354,7 @@ export const deleteApplication = async (req, res) => {
       'SELECT applicantID FROM soloParentApplication WHERE spApplicationID = ?',
       [spApplicationID]
     );
-    
+
     if (rows.length === 0) {
       throw new Error('No application found with the given ID.');
     }
