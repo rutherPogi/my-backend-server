@@ -24,7 +24,7 @@ export const getBarangayStats = async (req, res) => {
     const [rows] = await pool.query(`
       SELECT 
         s.barangay,
-        COUNT(DISTINCT s.surveyID) AS totalSurveys,
+        COUNT(*) AS totalSurveys,
         COUNT(p.populationID) AS totalPopulation
       FROM Surveys s
       LEFT JOIN Population p ON s.surveyID = p.surveyID
