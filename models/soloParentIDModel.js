@@ -103,8 +103,9 @@ export const addPersonalInfo = async (applicantID, spApplicationID, personalInfo
         civilStatus, 
         birthplace,
         religion,
-        soloParentIDNumber )
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        soloParentIDNumber,
+        isSoloParent )
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [ applicantID, 
         personalInfo.firstName,  
         personalInfo.middleName,
@@ -116,7 +117,8 @@ export const addPersonalInfo = async (applicantID, spApplicationID, personalInfo
         personalInfo.civilStatus,
         personalInfo.birthplace,
         personalInfo.religion,
-        spApplicationID ]
+        spApplicationID,
+        1 ]
     );
 
     await connection.query(

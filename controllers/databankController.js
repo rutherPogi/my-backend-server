@@ -192,9 +192,9 @@ export const getYouthMasterlist = async (req, res) => {
           prof.skills AS Skills,
           prof.occupation AS Occupation,
           TRIM(BOTH '/' FROM CONCAT_WS('/',
-              IF(pop.isOSY = 1, 'OSY', NULL),
-              IF(pop.inSchool = 1, 'In School', NULL),
-              IF(pop.isPWD = 1, 'PWD', NULL),
+              IF(p.isOSY = 1, 'OSY', NULL),
+              IF(p.inSchool = 1, 'In School', NULL),
+              IF(p.isPWD = 1, 'PWD', NULL),
               IF(prof.occupation IS NOT NULL, 'Working Youth', NULL)
           )) AS Remarks
       FROM PersonalInformation p
@@ -235,7 +235,7 @@ export const getOSY = async (req, res) => {
         gov.organizationAffiliated AS 'Membership in Organizations',
         CONCAT(fh.lastName, ', ', fh.firstName, ' ', IFNULL(fh.middleName, ''), ' ', IFNULL(fh.suffix, '')) AS 'Name of Parent Guardian',
         CASE 
-            WHEN pop.isPWD = true THEN 'PWD' 
+            WHEN p.isPWD = true THEN 'PWD' 
             ELSE '' 
         END AS 'Remarks'
     FROM PersonalInformation p
@@ -251,7 +251,7 @@ export const getOSY = async (req, res) => {
         ON p.populationID = fh.populationID 
         AND fh.relationToFamilyHead = 'Family Head'
     WHERE p.age BETWEEN 15 AND 24
-      AND pop.isOSY = true
+      AND p.isOSY = true
       AND s.barangay = ?;
     `, [ barangay ]);
     
@@ -277,7 +277,7 @@ export const getSoloParent = async (req, res) => {
               pi.firstName
           FROM Population p
           INNER JOIN PersonalInformation pi ON p.populationID = pi.populationID
-          WHERE p.isSoloParent = TRUE
+          WHERE pi.isSoloParent = TRUE
       )
 
       SELECT 
@@ -309,7 +309,7 @@ export const getSoloParent = async (req, res) => {
           END AS 'Educational Attainment',
           CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
               THEN pr.occupation
-              ELSE CASE WHEN p_child.inSchool = TRUE THEN 'Student'
+              ELSE CASE WHEN c.inSchool = TRUE THEN 'Student'
                         ELSE childProf.occupation
                     END
           END AS 'Occupation/Source of Income',
@@ -346,7 +346,7 @@ export const getSoloParent = async (req, res) => {
       LEFT JOIN 
           ProfessionalInformation childProf ON p_child.populationID = childProf.populationID
       WHERE 
-          p.isSoloParent = TRUE
+          pi.isSoloParent = TRUE
       AND s.barangay = ?
       ORDER BY 
           sp.ParentID, c.lastName, c.firstName;
@@ -358,7 +358,6 @@ export const getSoloParent = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 
 export const getWomenMasterlist = async (req, res) => {
@@ -377,24 +376,21 @@ export const getWomenMasterlist = async (req, res) => {
         prof.skills AS 'Skills',
         prof.occupation AS 'Occupation',
         TRIM(CONCAT(
-            CASE WHEN prof.occupation IS NOT NULL AND prof.occupation != '' THEN 'Working' ELSE '' END,
-            CASE WHEN prof.skills IS NOT NULL AND prof.skills != '' 
-                THEN CONCAT(
-                    CASE WHEN prof.occupation IS NOT NULL AND prof.occupation != '' THEN '/' ELSE '' END,
-                    'Skilled'
-                )
-            ELSE '' END
+          CASE WHEN prof.occupation IS NOT NULL AND prof.occupation != '' THEN 'Working' ELSE '' END,
+          CASE WHEN prof.skills IS NOT NULL AND prof.skills != '' 
+            THEN CONCAT(
+              CASE WHEN prof.occupation IS NOT NULL AND prof.occupation != '' THEN '/' ELSE '' END,
+              'Skilled'
+            )
+          ELSE '' END
         )) AS 'Remarks'
-    FROM PersonalInformation p
-    JOIN ProfessionalInformation prof 
-        ON p.populationID = prof.populationID
-    JOIN Population pop
-        ON p.populationID = pop.populationID
-    JOIN Surveys s
-        ON pop.surveyID = s.surveyID
-    WHERE p.age BETWEEN 18 AND 59
-      AND p.sex = 'Female'
-      AND s.barangay = ?;
+      FROM PersonalInformation p
+      LEFT JOIN ProfessionalInformation prof ON p.populationID = prof.populationID
+      LEFT JOIN Population pop ON p.populationID = pop.populationID
+      LEFT JOIN Surveys s ON pop.surveyID = s.surveyID
+      WHERE p.age BETWEEN 18 AND 59
+        AND p.sex = 'Female'
+        AND s.barangay = ?
     `, [ barangay ]);
     
     res.json(masterlist);
@@ -411,28 +407,28 @@ export const getPWD = async (req, res) => {
 
     const [masterlist] = await pool.query(`
       SELECT 
-        ROW_NUMBER() OVER (ORDER BY pi.lastName, pi.firstName) AS ID,
-        CONCAT_WS(' ', pi.lastName, pi.firstName, pi.middleName, pi.suffix) AS Name,
-        pi.birthdate AS 'Date of Birth',
-        pi.age AS Age,
-        pi.sex AS Sex,
-        prof.educationalAttainment AS 'Educational Attainment',
-        prof.skills AS Skills,
+        ROW_NUMBER() OVER (ORDER BY p.lastName, p.firstName) AS ID, -- Auto-incremented ID
+        CONCAT(p.firstName, ' ', IFNULL(p.middleName, ''), ' ', p.lastName, ' ', IFNULL(p.suffix, '')) AS Name,
+        p.birthdate AS Birthdate,
+        p.age AS Age,
+        p.sex AS Sex,
+        pi.educationalAttainment AS 'Educational Attainment',
+        pi.skills AS Skills,
+        pi.occupation AS Occupation,
         di.disabilityType AS 'Disability Type',
-        pi.pwdIDNumber AS 'PWD ID Number',
-        ci.mobileNumber AS 'Contact Number',
-        hh.familyClass AS 'Family Class'
-    FROM Population p
-    JOIN PersonalInformation pi ON p.populationID = pi.populationID
-    JOIN ContactInformation ci ON p.populationID = ci.populationID
-    JOIN ProfessionalInformation prof ON p.populationID = prof.populationID
-    JOIN pwdApplication app ON pi.applicantID = app.applicantID
-    JOIN DisabilityInformation di ON app.pwdApplicationID = di.pwdApplicationID
-    JOIN Surveys s ON p.surveyID = s.surveyID
-    JOIN Households hh ON s.surveyID = hh.surveyID
-    WHERE p.isPWD = TRUE
-      AND pi.age <= 59
-      AND s.barangay = ?
+        p.pwdIDNumber AS 'PWD ID Number',
+        h.familyClass AS 'Family Class'
+      FROM PersonalInformation p
+      LEFT JOIN ProfessionalInformation pi ON p.populationID = pi.populationID OR p.applicantID = pi.applicantID
+      LEFT JOIN pwdApplication pa ON p.applicantID = pa.applicantID
+      LEFT JOIN DisabilityInformation di ON pa.pwdApplicationID = di.pwdApplicationID
+      LEFT JOIN ContactInformation ci ON p.populationID = ci.populationID OR p.applicantID = ci.applicantID
+      LEFT JOIN Population pop ON p.populationID = pop.populationID
+      LEFT JOIN Households h ON pop.surveyID = h.surveyID
+      LEFT JOIN Surveys s ON h.surveyID = s.surveyID
+      WHERE p.isPWD = TRUE
+        AND p.age <= 59
+        AND ci.barangay = ?;
     `, [ barangay ]);
     
     res.json(masterlist);

@@ -229,8 +229,8 @@ export const addPersonalInfo = async (applicantID, pwdApplicationID, personalInf
 
     await connection.query(
       `INSERT INTO PersonalInformation
-      (applicantID, firstName, middleName, lastName, suffix, birthdate, age, sex, civilStatus, bloodType, pwdIDNumber)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (applicantID, firstName, middleName, lastName, suffix, birthdate, age, sex, civilStatus, bloodType, pwdIDNumber, isPWD)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [ applicantID, 
         personalInfo.firstName,  
         personalInfo.middleName,
@@ -241,7 +241,8 @@ export const addPersonalInfo = async (applicantID, pwdApplicationID, personalInf
         personalInfo.sex,
         personalInfo.civilStatus,
         personalInfo.bloodType,
-        pwdApplicationID ]
+        pwdApplicationID,
+        1 ]
     );
 
     await connection.query(

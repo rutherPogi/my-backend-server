@@ -56,23 +56,11 @@ export const updatePopulation = async (familyMembers, connection) => {
     const [result] = await connection.query(
       `UPDATE Population
        SET healthStatus = ?,
-           remarks = ?,
-           isOSY = ?,
-           inSchool = ?,
-           outOfTown = ?,
-           isOFW = ?,
-           isPWD = ?, 
-           isSoloParent = ?
+           remarks = ?
        WHERE populationID = ? AND surveyID = ?`,
       [
-        member.healthStatus || 'N/A',
-        member.remarks || 'N/A',
-        member.isOSY,
-        member.inSchool,
-        member.outOfTown,
-        member.isOFW,
-        member.isPWD,
-        member.isSoloParent,
+        member.healthStatus ,
+        member.remarks ,
         member.populationID,
         member.surveyID
       ]
@@ -105,20 +93,32 @@ export const updatePersonalInfo = async (familyMembers, connection) => {
            birthplace = ?, 
            religion = ?,
            civilStatus = ?,
-           relationToFamilyHead = ?
+           relationToFamilyHead = ?,
+           isOSY = ?,
+           inSchool = ?,
+           outOfTown = ?,
+           isOFW = ?,
+           isPWD = ?, 
+           isSoloParent = ?
        WHERE personalInfoID = ? AND populationID = ?`,
       [
-        member.firstName || 'N/A',
-        member.middleName || 'N/A',
-        member.lastName || 'N/A',
-        member.suffix || 'N/A',
+        member.firstName ,
+        member.middleName ,
+        member.lastName ,
+        member.suffix ,
         member.birthdate ? member.birthdate.split('T')[0] : null,
         member.age,
         member.sex,
-        member.birthplace || 'N/A',
-        member.religion || 'N/A',
+        member.birthplace ,
+        member.religion ,
         member.civilStatus,
         member.relationToFamilyHead,
+        member.isOSY,
+        member.inSchool,
+        member.outOfTown,
+        member.isOFW,
+        member.isPWD,
+        member.isSoloParent,
         member.personalInfoID,
         member.populationID
       ]
@@ -149,9 +149,9 @@ export const updateProfessionalInfo = async (familyMembers, connection) => {
        WHERE professionalInfoID = ? AND populationID = ?`,
       [
         member.educationalAttainment,
-        member.skills || 'N/A',
-        member.occupation || 'N/A',
-        member.employmentType || 'N/A',
+        member.skills ,
+        member.occupation ,
+        member.employmentType ,
         parseFloat(member.monthlyIncome.replace(/,/g, '').trim())|| 0,
         member.professionalInfoID,
         member.populationID,
@@ -168,7 +168,7 @@ export const updateProfessionalInfo = async (familyMembers, connection) => {
   return results;
 };
 
-export const updateContactInfo = async (familyMembers, connection) => {
+export const updateContactInfo = async (familyMembers, houseLocation, connection) => {
 
   if (!familyMembers || familyMembers.length === 0) return null;
 
@@ -176,10 +176,16 @@ export const updateContactInfo = async (familyMembers, connection) => {
 
     const [result] = await connection.query(
       `UPDATE ContactInformation
-       SET mobileNumber = ?
+       SET mobileNumber = ?,
+           street = ?,
+           barangay = ?,
+           municipality = 'Itbayat',
+           province = 'Batanes'
        WHERE contactInfoID = ? AND populationID = ?`,
       [
-        member.contactNumber || 'N/A',
+        member.contactNumber,
+        houseLocation.street,
+        houseLocation.barangay,
         member.contactInfoID,
         member.populationID
       ]
@@ -235,7 +241,7 @@ export const updateGovernmentAffiliation = async (familyMembers, connection) => 
         member.isAffiliated,
         member.asOfficer || null,
         member.asMember || null,
-        member.organizationAffiliated || 'N/A',
+        member.organizationAffiliated ,
         member.governmentAffiliationID,
         member.populationID
       ]
@@ -269,11 +275,11 @@ export const updateNonIvatan = async (familyMembers, connection) => {
        WHERE nonIvatanID = ? AND populationID = ?`,
       [
         member.isIpula,
-        member.settlementDetails || 'N/A',
-        member.ethnicity || 'N/A',
-        member.placeOfOrigin || 'N/A',
+        member.settlementDetails ,
+        member.ethnicity ,
+        member.placeOfOrigin ,
         member.isTransient,
-        member.houseOwner || 'N/A',
+        member.houseOwner ,
         member.transientRegistered,
         member.dateRegistered || null,
         member.nonIvatanID,
@@ -599,7 +605,7 @@ export const updateServiceAvailed = async (surveyID, serviceAvailed, connection)
         parseInt(service.maleServed),
         parseInt(service.femaleServed),
         parseInt(service.totalServed),
-        service.howServiceHelp || 'N/A',
+        service.howServiceHelp ,
         service.serviceAvailedID,
         surveyID
       ]

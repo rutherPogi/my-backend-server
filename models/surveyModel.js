@@ -87,20 +87,13 @@ export const addPopulation = async (populationID, surveyId, familyMembers, conne
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
     surveyId,
-    member.healthStatus || 'N/A',
-    member.remarks || 'N/A',
-    member.isOSY,
-    member.inSchool,
-    member.outOfTown,
-    member.isOFW,
-    member.isPWD,
-    member.isSoloParent
+    member.healthStatus,
+    member.remarks
   ]);
   
   const [result] = await connection.query(
     `INSERT INTO Population
-     (populationID, surveyID, healthStatus, remarks,
-      isOSY, inSchool, outOfTown, isOFW, isPWD, isSoloParent) 
+     (populationID, surveyID, healthStatus, remarks) 
      VALUES ?`,
     [familyMemberValues]
   );
@@ -115,16 +108,22 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
     member.firstName,
-    member.middleName || 'N/A',
+    member.middleName,
     member.lastName,
-    member.suffix || 'N/A',
+    member.suffix,
     member.birthdate ? member.birthdate.split('T')[0] : null,
     member.age || member.formattedAge,
     member.sex,
-    member.birthplace || 'N/A',
-    member.religion || 'N/A',
+    member.birthplace,
+    member.religion,
     member.civilStatus,
-    member.relationToFamilyHead
+    member.relationToFamilyHead,
+    member.isOSY,
+    member.inSchool,
+    member.outOfTown,
+    member.isOFW,
+    member.isPWD,
+    member.isSoloParent
   ]);
   
   const [result] = await connection.query(
@@ -132,7 +131,8 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
      ( populationID, 
        firstName, middleName, lastName, suffix,
        birthdate, age, sex, birthplace,
-       religion, civilStatus, relationToFamilyHead ) 
+       religion, civilStatus, relationToFamilyHead,
+       isOSY, inSchool, outOfTown, isOFW, isPWD, isSoloParent ) 
      VALUES ?`,
     [familyMemberValues]
   );
@@ -168,25 +168,33 @@ export const addProfessionalInfo = async (populationID, familyMembers, connectio
   return result;
 };
 
-export const addContactInfo = async (populationID, familyMembers, connection) => {
-  
+export const addContactInfo = async (populationID, familyMembers, houseLocation, connection) => {
+
   if (!familyMembers || familyMembers.length === 0) return null;
   
+  // Prepare the family member data for insertion
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
-    member.contactNumber
+    member.contactNumber,
+    houseLocation.houseStreet,
+    houseLocation.barangay,
+    'Itbayat',
+    'Batanes'
   ]);
   
+  // Insert family members contact info
   const [result] = await connection.query(
     `INSERT INTO ContactInformation
-     ( populationID, 
-       mobileNumber ) 
+     (populationID, mobileNumber, street, barangay, municipality, province) 
      VALUES ?`,
     [familyMemberValues]
   );
   
   return result;
 };
+
+
+
 
 export const addGovernmentID = async (populationID, familyMembers, connection) => {
   
@@ -227,7 +235,7 @@ export const addGovernmentAffiliation = async (populationID, familyMembers, conn
     )
       ? null
       : member.asMember.split('T')[0],
-    member.organizationAffiliated || 'N/A'
+    member.organizationAffiliated
   ]);
   
   if(affiliationValues.length > 0) {
@@ -251,11 +259,11 @@ export const addNonIvatan = async (populationID, familyMembers, connection) => {
   const nonIvatanValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
     member.isIpula,
-    member.settlementDetails || 'N/A',
-    member.ethnicity || 'N/A',
-    member.placeOfOrigin || 'N/A',
+    member.settlementDetails,
+    member.ethnicity,
+    member.placeOfOrigin,
     member.isTransient ,
-    member.houseOwner || 'N/A',
+    member.houseOwner,
     member.transientRegistered,
     (!member.transientDateRegistered || 
       member.transientDateRegistered === 'N/A' || 
@@ -498,7 +506,7 @@ export const addCommunityIssues = async (surveyId, communityIssues, connection) 
 
   await connection.query(
     `INSERT INTO CommunityIssues (surveyID, issues) VALUES (?, ?)`,
-    [ surveyId, communityIssues.issues || 'N/A' ]
+    [ surveyId, communityIssues.issues ]
   );
 };
 

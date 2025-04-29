@@ -56,7 +56,7 @@ export const submitSurvey = async (req, res) => {
     await surveyModel.addProfessionalInfo(populationID, surveyData.familyMembers, connection);
 
     console.log("Inserting Contact Info");
-    await surveyModel.addContactInfo(populationID, surveyData.familyMembers, connection);
+    await surveyModel.addContactInfo(populationID, surveyData.familyMembers, surveyData.houseLocation, connection);
 
     console.log("Inserting Government IDs");
     await surveyModel.addGovernmentID(populationID, surveyData.familyMembers, connection);
@@ -233,10 +233,10 @@ export const updateSurvey = async (req, res) => {
 
     if(isCreating('contactInfoID', 'familyMembers')) {
       console.log("Creating Contact Info");
-      await surveyModel.addContactInfo(populationID, surveyData.familyMembers, connection);
+      await surveyModel.addContactInfo(populationID, surveyData.familyMembers, surveyData.houseLocation, connection);
     } else {
       console.log("Updating Contact Info");
-      await updateSurveyModel.updateContactInfo(surveyData.familyMembers, connection);
+      await updateSurveyModel.updateContactInfo(surveyData.familyMembers, surveyData.houseLocation, connection);
     }
 
     if(isCreating('governmentID', 'familyMembers')) {
@@ -505,12 +505,12 @@ export const viewSurvey = async (req, res) => {
         p.surveyID,
         p.healthStatus,
         p.remarks,
-        p.isOSY,
-        p.inSchool,
-        p.outOfTown,
-        p.isOFW,
-        p.isPWD,
-        p.isSoloParent,
+        pi.isOSY,
+        pi.inSchool,
+        pi.outOfTown,
+        pi.isOFW,
+        pi.isPWD,
+        pi.isSoloParent,
 
         pi.personalInfoID,
         pi.firstName,
