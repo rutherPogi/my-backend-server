@@ -4,12 +4,13 @@ export const getTotal = async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
-        (SELECT COUNT(*) FROM Surveys) AS TotalSurvey,
-        (SELECT COUNT(*) FROM Population) AS TotalPopulation,
-        (SELECT COUNT(*) FROM HouseInformation) AS HouseRegistered,
-        (SELECT COUNT(*) FROM pwdApplication) AS TotalPWDApplication,
-        (SELECT COUNT(*) FROM soloParentApplication) AS TotalSPApplication,
-        (SELECT COUNT(*) FROM seniorCitizenApplication) AS TotalSCApplication
+        (SELECT COUNT(*) FROM Surveys) AS totalSurveys,
+        (SELECT COUNT(*) FROM Population) AS totalPopulation,
+        (SELECT COUNT(*) FROM PersonalInformation WHERE sex = 'Male') AS totalMale,
+        (SELECT COUNT(*) FROM PersonalInformation WHERE sex = 'Female') AS totalFemale,
+        (SELECT COUNT(*) FROM PersonalInformation WHERE isPWD = TRUE) AS totalPWD,
+        (SELECT COUNT(*) FROM PersonalInformation WHERE isSoloParent = TRUE) AS totalSoloParent,
+        (SELECT COUNT(*) FROM PersonalInformation WHERE age BETWEEN 15 AND 30) AS totalYouth;
       `);
 
     res.json(rows[0]);
@@ -24,13 +25,20 @@ export const getBarangayStats = async (req, res) => {
     const [rows] = await pool.query(`
       SELECT 
         s.barangay,
-        COUNT(*) AS totalSurveys,
-        COUNT(p.populationID) AS totalPopulation
+        COUNT(DISTINCT s.surveyID) AS Surveys,
+        COUNT(DISTINCT p.populationID) AS Population,
+        COUNT(DISTINCT pi.personalInfoID) AS totalPersonalInfo,
+        SUM(CASE WHEN pi.sex = 'Male' THEN 1 ELSE 0 END) AS Men,
+        SUM(CASE WHEN pi.sex = 'Female' THEN 1 ELSE 0 END) AS Women,
+        SUM(CASE WHEN pi.isPWD = TRUE THEN 1 ELSE 0 END) AS PWD,
+        SUM(CASE WHEN pi.isSoloParent = TRUE THEN 1 ELSE 0 END) AS SoloParent,
+        SUM(CASE WHEN pi.age BETWEEN 15 AND 30 THEN 1 ELSE 0 END) AS Youth
       FROM Surveys s
       LEFT JOIN Population p ON s.surveyID = p.surveyID
+      LEFT JOIN PersonalInformation pi ON p.populationID = pi.populationID
       GROUP BY s.barangay
     `);
-    
+
     res.json(rows);
   } catch (error) {
     console.error('Error fetching barangay stats:', error);

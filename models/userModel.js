@@ -27,24 +27,14 @@ export const createUser = async (userID, accountName, username, hashedPassword, 
 };
 
 export const updateUser = async (userID, userData) => {
-  // Build the query dynamically based on the fields provided
-  const fields = Object.keys(userData)
-    .filter(key => userData[key] !== undefined)
-    .map(key => `${key} = ?`);
   
-  if (fields.length === 0) return null; // No fields to update
-  
-  const query = `UPDATE users SET ${fields.join(', ')} WHERE userID = ?`;
-  
-  // Build values array in the same order as fields
-  const values = [
-    ...Object.keys(userData)
-      .filter(key => userData[key] !== undefined)
-      .map(key => userData[key]),
-    userID
-  ];
-  
-  const [result] = await pool.query(query, values);
+  const [result] = await pool.query( `
+    UPDATE users 
+    SET accountName = ?,
+        username = ?  
+    WHERE userID = ?`,
+    [userData.accountName, userData.username, userID]);
+
   return result;
 };
 

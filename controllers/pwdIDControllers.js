@@ -222,7 +222,7 @@ export const findPwdID = async (req, res) => {
     const population = results.map(person => ({
       personalInfoID: person.personalInfoID,
       populationID: person.populationID,
-      pwdApplicationID: person.pwdApplicationID,
+      applicantID: person.applicantID,
       pwdIDNumber: person.pwdIDNumber,
       firstName: person.firstName,
       middleName: person.middleName || 'N/A',

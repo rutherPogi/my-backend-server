@@ -214,15 +214,16 @@ export const findID = async (req, res) => {
       SELECT 
         pi.personalInfoID,
         pi.populationID,
-        pi.scApplicationID,
-        pi.pwdIDNumber,
+        pi.applicantID,
+        pi.seniorCitizenIDNumber,
         pi.firstName,
         pi.middleName,
         pi.lastName,
         pi.suffix,
         pi.birthdate,
         pi.sex,
-        CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation,
+        pi.age,
+        CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation
       FROM PersonalInformation pi
       LEFT JOIN Population p ON pi.populationID = p.populationID
       WHERE pi.firstName LIKE ?
@@ -251,15 +252,15 @@ export const findID = async (req, res) => {
     const population = results.map(person => ({
       personalInfoID: person.personalInfoID,
       populationID: person.populationID,
-      scApplicationID: person.scApplicationID,
-      pwdIDNumber: person.pwdIDNumber,
+      applicantID: person.applicantID,
+      seniorCitizenIDNumber: person.seniorCitizenIDNumber,
       firstName: person.firstName,
       middleName: person.middleName || 'N/A',
       lastName: person.lastName,
       suffix: person.suffix || 'N/A',
       birthdate: person.birthdate,
       sex: person.sex,
-      isPWD: person.isPWD
+      age: person.age
     }));
 
     res.status(200).json({ 

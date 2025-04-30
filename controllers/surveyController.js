@@ -34,15 +34,16 @@ export const submitSurvey = async (req, res) => {
     await connection.beginTransaction();
 
     const surveyID = await surveyModel.generateSurveyId(connection);
+    console.log('SURVEY ID:', surveyID);
 
     const surveyData = JSON.parse(req.body.surveyData);
     const populationID = `P${surveyID}`;
     
     console.log("Inserting Survey Details");
-    await surveyModel.createSurvey(surveyData.surveyData, connection);
+    await surveyModel.createSurvey(surveyID, surveyData.surveyData, connection);
 
     console.log("Inserting Household");
-    await surveyModel.addHousehold(surveyData.surveyData, connection);
+    await surveyModel.addHousehold(surveyID, surveyData.surveyData, connection);
     
 
     // POPULATION

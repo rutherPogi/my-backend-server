@@ -186,6 +186,8 @@ export const updateUserProfile = async (req, res) => {
     const { userID } = req.params;
     const { accountName, username } = req.body;
     
+    console.log('Updating user profile:', userID, accountName, username);
+
     // Check if username is already taken by another user
     if (username) {
       const existingUser = await userModel.findUserByUsername(username);
@@ -196,11 +198,7 @@ export const updateUserProfile = async (req, res) => {
       }
     }
     
-    // Update user profile
-    await userModel.updateUser(userID, {
-      accountName,
-      username
-    });
+    await userModel.updateUser(userID, { accountName, username });
     
     res.status(200).json({
       success: true,

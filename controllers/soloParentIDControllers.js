@@ -206,7 +206,7 @@ export const findID = async (req, res) => {
   const connection = await pool.getConnection();
   
   try {
-    console.log('Finding Persoan ...');
+    console.log('Finding Person (Solo Parent) ...');
     console.log('Search params:', req.body);
     
     // Get search parameters from request body
@@ -232,6 +232,7 @@ export const findID = async (req, res) => {
         pi.suffix,
         pi.birthdate,
         pi.sex,
+        pi.isSoloParent,
         CASE WHEN p.populationID IS NOT NULL THEN TRUE ELSE FALSE END AS existsInPopulation
       FROM PersonalInformation pi
       LEFT JOIN Population p ON pi.populationID = p.populationID
@@ -261,7 +262,7 @@ export const findID = async (req, res) => {
     const population = results.map(person => ({
       personalInfoID: person.personalInfoID,
       populationID: person.populationID,
-      scApplicationID: person.scApplicationID,
+      applicantID: person.applicantID,
       pwdIDNumber: person.pwdIDNumber,
       firstName: person.firstName,
       middleName: person.middleName || 'N/A',
@@ -269,7 +270,7 @@ export const findID = async (req, res) => {
       suffix: person.suffix || 'N/A',
       birthdate: person.birthdate,
       sex: person.sex,
-      isPWD: person.isPWD
+      isSoloParent: person.isSoloParent
     }));
 
     res.status(200).json({ 

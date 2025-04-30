@@ -43,14 +43,14 @@ export const generateSurveyId = async (connection) => {
   }
 };
 
-export const createSurvey = async (surveyData, connection) => {
+export const createSurvey = async (surveyID, surveyData, connection) => {
 
   const [result] = await connection.query(
     `INSERT INTO Surveys 
      (surveyID, respondent, interviewer, barangay, municipality)
      VALUES (?, ?, ?, ?, ?)`,
     [
-      surveyData.surveyID,
+      surveyID,
       surveyData.respondent,
       surveyData.interviewer,
       surveyData.barangay,
@@ -60,15 +60,15 @@ export const createSurvey = async (surveyData, connection) => {
   return result;
 };
 
-export const addHousehold = async (surveyData, connection) => {
+export const addHousehold = async (surveyID, surveyData, connection) => {
 
   const [result] = await connection.query(
     `INSERT INTO Households 
      (householdID, surveyID, familyClass, monthlyIncome, irregularIncome, familyIncome)
      VALUES (?, ?, ?, ?, ?, ?)`,
     [
-      'H' + surveyData.surveyID,
-      surveyData.surveyID,
+      'H' + surveyID,
+      surveyID,
       surveyData.familyClass,
       parseFloat(surveyData.monthlyIncome.replace(/,/g, '').trim()) || 0,
       parseFloat(surveyData.irregularIncome.replace(/,/g, '').trim()) || 0,
@@ -111,7 +111,7 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
     member.middleName,
     member.lastName,
     member.suffix,
-    member.birthdate ? member.birthdate.split('T')[0] : null,
+    member.birthdate,
     member.age || member.formattedAge,
     member.sex,
     member.birthplace,
