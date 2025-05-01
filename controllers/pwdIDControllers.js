@@ -76,7 +76,7 @@ export const updatePwdId = async (req, res) => {
     await connection.beginTransaction();
     
     const applicationData = JSON.parse(req.body.applicationData);
-    const pwdApplicationID = applicationData.personalInfo.pwdApplicationID;
+    const pwdApplicationID = applicationData.personalInfo.pwdIDNumber;
     console.log('Application ID', pwdApplicationID);
 
     let photoID = null;
@@ -202,6 +202,7 @@ export const findPwdID = async (req, res) => {
         AND (pi.suffix LIKE ? OR ? = '' OR pi.suffix IS NULL)
         ${birthdate ? 'AND pi.birthdate = ?' : ''}
         AND pi.sex = ?
+        AND pi.isPWD = TRUE
       ORDER BY 
         CASE WHEN pi.middleName = ? THEN 1 ELSE 2 END,
         CASE WHEN pi.birthdate = ? THEN 1 ELSE 2 END
@@ -261,8 +262,7 @@ export const getPersonDetails = async (req, res) => {
     const [population] = await connection.query(`
       SELECT 
         populationID,
-        surveyID,
-        isPWD
+        surveyID
       FROM Population
       WHERE populationID = ?
     `, [populationID]);

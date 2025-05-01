@@ -101,7 +101,7 @@ export const updateSeniorCitizenID = async (req, res) => {
     await connection.beginTransaction();
 
     const applicationData = JSON.parse(req.body.applicationData);
-    const scApplicationID = applicationData.personalInfo.scApplicationID;
+    const scApplicationID = applicationData.personalInfo.seniorCitizenIDNumber;
     console.log('Application ID', scApplicationID);
 
     let photoID = null;
@@ -232,6 +232,7 @@ export const findID = async (req, res) => {
         AND (pi.suffix LIKE ? OR ? = '' OR pi.suffix IS NULL)
         ${birthdate ? 'AND pi.birthdate = ?' : ''}
         AND pi.sex = ?
+        AND pi.age >= 60
       ORDER BY 
         CASE WHEN pi.middleName = ? THEN 1 ELSE 2 END,
         CASE WHEN pi.birthdate = ? THEN 1 ELSE 2 END
