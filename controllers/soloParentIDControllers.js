@@ -107,7 +107,7 @@ export const updateSoloParentID = async (req, res) => {
     await connection.beginTransaction();
     
     const applicationData = JSON.parse(req.body.applicationData);
-    const spApplicationID = applicationData.personalInfo.soloParentIDNumber;
+    const spApplicationID = applicationData.personalInfo.spApplicationID;
     console.log('Application ID', spApplicationID);
 
     let photoID = null;
@@ -147,6 +147,7 @@ export const updateSoloParentID = async (req, res) => {
     console.log("Updating Emergency Contact");
     await updateSoloParentIDModel.updateEmergencyContact(spApplicationID, applicationData.emergencyContact, connection);
 
+    console.log('SP APPLICATION:', spApplicationID);
     await connection.commit();
     res.status(200).json({ 
       success: true, 

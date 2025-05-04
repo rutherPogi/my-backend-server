@@ -101,7 +101,7 @@ export const updateSeniorCitizenID = async (req, res) => {
     await connection.beginTransaction();
 
     const applicationData = JSON.parse(req.body.applicationData);
-    const scApplicationID = applicationData.personalInfo.seniorCitizenIDNumber;
+    const scApplicationID = applicationData.personalInfo.scApplicationID;
     console.log('Application ID', scApplicationID);
 
     let photoID = null;

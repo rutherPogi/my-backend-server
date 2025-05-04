@@ -449,8 +449,13 @@ export const updateSurvey = async (req, res) => {
 };
 
 export const listSurvey = async (req, res) => {
+
+  const { username, position } = req.params;
+
+  console.log('Position', position);
+
   try {
-    const [rows] = await pool.query(`
+    let query = `
       SELECT 
         sr.surveyID,
         sr.respondent,
@@ -459,10 +464,19 @@ export const listSurvey = async (req, res) => {
         sr.barangay
       FROM 
         Surveys sr
-      ORDER BY 
-        sr.surveyDate DESC
-    `);
-    
+    `;
+
+    const params = [];
+
+    if (position === 'Barangay Official') {
+      query += ` WHERE sr.interviewer = ?`;
+      params.push(username);
+    }
+
+    query += ` ORDER BY sr.surveyDate DESC`;
+
+    const [rows] = await pool.query(query, params);
+
     res.status(200).json(rows);
   } catch (error) {
     console.error('Error fetching survey data:', error);
@@ -473,6 +487,7 @@ export const listSurvey = async (req, res) => {
     });
   }
 }
+
 
 export const viewSurvey = async (req, res) => {
   const connection = await pool.getConnection();

@@ -6,7 +6,7 @@ export const updateSeniorCitizenApplication = async (scApplicationID, photoID, s
 
     // Update the main application
     await connection.query(
-      `UPDATE seniorCitizenApplication
+      `UPDATE SeniorCitizenApplication
        SET dateApplied = CURDATE() ,
            issuedAt = CURDATE() ,
            issuedOn = CURDATE() 
@@ -17,21 +17,21 @@ export const updateSeniorCitizenApplication = async (scApplicationID, photoID, s
 
     if (photoID && signature) {
       await connection.query(
-        `UPDATE seniorCitizenApplication
+        `UPDATE SeniorCitizenApplication
          SET photoID = ?, signature = ?
          WHERE scApplicationID = ?`,
         [photoID, signature, scApplicationID]
       );
     } else if (photoID) {
       await connection.query(
-        `UPDATE seniorCitizenApplication
+        `UPDATE SeniorCitizenApplication
          SET photoID = ?
          WHERE scApplicationID = ?`,
         [photoID, scApplicationID]
       );
     } else if (signature) {
       await connection.query(
-        `UPDATE seniorCitizenApplication
+        `UPDATE SeniorCitizenApplication
          SET signature = ?
          WHERE scApplicationID = ?`,
         [signature, scApplicationID]

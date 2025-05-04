@@ -22,7 +22,7 @@ router.put('/update',
   surveyController.updateSurvey
 );
 
-router.get('/list', authenticateToken, surveyController.listSurvey);
+router.get('/list/:username/:position', authenticateToken, surveyController.listSurvey);
 
 router.get('/view/:surveyID', authenticateToken, surveyController.viewSurvey);
 

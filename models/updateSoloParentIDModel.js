@@ -6,7 +6,7 @@ export const updateSoloParentApplicant = async (spApplicationID, photoID, signat
 
     // Update the main application
     await connection.query(
-      `UPDATE soloParentApplication
+      `UPDATE SoloParentApplication
        SET caseNumber = ?,
            dateApplied = CURDATE()
        WHERE spApplicationID = ?`,
@@ -17,21 +17,21 @@ export const updateSoloParentApplicant = async (spApplicationID, photoID, signat
 
     if (photoID && signature) {
       await connection.query(
-        `UPDATE soloParentApplication
+        `UPDATE SoloParentApplication
          SET photoID = ?, signature = ?
          WHERE spApplicationID = ?`,
         [photoID, signature, spApplicationID]
       );
     } else if (photoID) {
       await connection.query(
-        `UPDATE soloParentApplication
+        `UPDATE SoloParentApplication
          SET photoID = ?
          WHERE spApplicationID = ?`,
         [photoID, spApplicationID]
       );
     } else if (signature) {
       await connection.query(
-        `UPDATE soloParentApplication
+        `UPDATE SoloParentApplication
          SET signature = ?
          WHERE spApplicationID = ?`,
         [signature, spApplicationID]

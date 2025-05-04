@@ -76,7 +76,7 @@ export const updatePwdId = async (req, res) => {
     await connection.beginTransaction();
     
     const applicationData = JSON.parse(req.body.applicationData);
-    const pwdApplicationID = applicationData.personalInfo.pwdIDNumber;
+    const pwdApplicationID = applicationData.personalInfo.pwdApplicationID;
     console.log('Application ID', pwdApplicationID);
 
     let photoID = null;
