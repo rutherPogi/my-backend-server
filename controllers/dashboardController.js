@@ -6,11 +6,12 @@ export const getTotal = async (req, res) => {
       SELECT 
         (SELECT COUNT(*) FROM Surveys) AS totalSurveys,
         (SELECT COUNT(*) FROM Population) AS totalPopulation,
-        (SELECT COUNT(*) FROM PersonalInformation WHERE sex = 'Male') AS totalMale,
-        (SELECT COUNT(*) FROM PersonalInformation WHERE sex = 'Female') AS totalFemale,
-        (SELECT COUNT(*) FROM PersonalInformation WHERE isPWD = TRUE) AS totalPWD,
-        (SELECT COUNT(*) FROM PersonalInformation WHERE isSoloParent = TRUE) AS totalSoloParent,
-        (SELECT COUNT(*) FROM PersonalInformation WHERE age BETWEEN 15 AND 30) AS totalYouth;
+        COUNT(CASE WHEN sex = 'Male' AND populationID IS NOT NULL THEN 1 END) AS totalMale,
+        COUNT(CASE WHEN sex = 'Female' AND populationID IS NOT NULL THEN 1 END) AS totalFemale,
+        COUNT(CASE WHEN isPWD = TRUE AND populationID IS NOT NULL THEN 1 END) AS totalPWD,
+        COUNT(CASE WHEN isSoloParent = TRUE AND populationID IS NOT NULL THEN 1 END) AS totalSoloParent,
+        COUNT(CASE WHEN age BETWEEN 15 AND 30 AND populationID IS NOT NULL THEN 1 END) AS totalYouth
+      FROM PersonalInformation;
       `);
 
     res.json(rows[0]);
