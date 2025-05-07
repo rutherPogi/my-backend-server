@@ -81,7 +81,6 @@ export const createSoloParentApplicant = async (spApplicationID, photoID, signat
     throw error;
   }
 
-  
 };
 
 export const addPersonalInfo = async (applicantID, spApplicationID, personalInfo, connection) => {
@@ -111,7 +110,7 @@ export const addPersonalInfo = async (applicantID, spApplicationID, personalInfo
         personalInfo.middleName,
         personalInfo.lastName,
         personalInfo.suffix,
-        personalInfo.birthdate ? personalInfo.birthdate.split('T')[0] : null,,
+        personalInfo.birthdate ? personalInfo.birthdate.split('T')[0] : null,
         parseInt(personalInfo.age),
         personalInfo.sex,
         personalInfo.civilStatus,

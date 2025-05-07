@@ -454,8 +454,6 @@ export const viewApplication = async (req, res) => {
     });
     console.log('[SUCCESS] Photo ID and Signature');
 
-    console.log('PERSONAL INFO:', personalInfo);
-
     res.status(200).json({ 
       personalInfo,
       familyComposition,
