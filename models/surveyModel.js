@@ -82,7 +82,6 @@ export const addHousehold = async (surveyID, surveyData, connection) => {
 // POPULATION
 export const addPopulation = async (populationID, surveyId, familyMembers, connection) => {
 
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
@@ -103,7 +102,6 @@ export const addPopulation = async (populationID, surveyId, familyMembers, conne
 
 export const addPersonalInfo = async (populationID, familyMembers, connection) => {
 
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
@@ -142,7 +140,6 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
 
 export const addProfessionalInfo = async (populationID, familyMembers, connection) => {
 
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
@@ -169,8 +166,6 @@ export const addProfessionalInfo = async (populationID, familyMembers, connectio
 };
 
 export const addContactInfo = async (populationID, familyMembers, houseLocation, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   // Prepare the family member data for insertion
   const familyMemberValues = familyMembers.map((member, index) => [
@@ -198,8 +193,6 @@ export const addContactInfo = async (populationID, familyMembers, houseLocation,
 
 export const addGovernmentID = async (populationID, familyMembers, connection) => {
   
-  if (!familyMembers || familyMembers.length === 0) return null;
-  
   const familyMemberValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
     member.philhealthNumber || null
@@ -217,8 +210,6 @@ export const addGovernmentID = async (populationID, familyMembers, connection) =
 };
 
 export const addGovernmentAffiliation = async (populationID, familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   const affiliationValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
@@ -253,8 +244,6 @@ export const addGovernmentAffiliation = async (populationID, familyMembers, conn
 };
 
 export const addNonIvatan = async (populationID, familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
   
   const nonIvatanValues = familyMembers.map((member, index) => [
     `${populationID}-${index + 1}`,
@@ -292,8 +281,6 @@ export const addNonIvatan = async (populationID, familyMembers, connection) => {
 // EXPENSES
 export const addFoodExpenses = async (surveyId, foodExpenses, connection) => {
 
-  if (!surveyId || !foodExpenses.expenses) return null;
-
   const expenses = foodExpenses.expenses;
   
   // Convert string values to numbers and handle commas
@@ -326,8 +313,6 @@ export const addFoodExpenses = async (surveyId, foodExpenses, connection) => {
 
 export const addEducationExpenses = async (surveyId, educationExpenses, connection) => {
 
-  if (!surveyId || !educationExpenses.expenses) return null;
-
   const expenses = educationExpenses.expenses;
 
   const tuitionFees = parseFloat(expenses['Tuition Fees']?.replace(/,/g, '').trim()) || 0;
@@ -356,8 +341,6 @@ export const addEducationExpenses = async (surveyId, educationExpenses, connecti
 };
 
 export const addFamilyExpenses = async (surveyId, familyExpenses, connection) => {
-
-  if (!surveyId || !familyExpenses.expenses) return null;
 
   const expenses = familyExpenses.expenses;
 
@@ -390,8 +373,6 @@ export const addFamilyExpenses = async (surveyId, familyExpenses, connection) =>
 
 export const addMonthlyExpenses = async (surveyId, monthlyExpenses, connection) => {
 
-  if (!surveyId || !monthlyExpenses.expenses) return null;
-
   const expenses = monthlyExpenses.expenses;
 
   const electricBill = parseFloat(expenses['Electric Bill']?.replace(/,/g, '').trim()) || 0;
@@ -419,8 +400,6 @@ export const addMonthlyExpenses = async (surveyId, monthlyExpenses, connection) 
 
 
 export const addHouseInfo = async (surveyId, houseInfo, houseLocation, connection) => {
-
-  if (!houseInfo) return null;
 
   await connection.query(
     `INSERT INTO HouseInformation
@@ -466,8 +445,6 @@ export const addHouseImage = async (surveyId, houseTitle, houseImageBuffer, conn
 
 export const addWaterInfo = async (surveyId, water, connection) => {
   
-  if (!water) return null;
-  
   await connection.query(
     `INSERT INTO WaterInformation
      (surveyID, waterAccess, potableWater, waterSources) 
@@ -482,7 +459,6 @@ export const addWaterInfo = async (surveyId, water, connection) => {
 };
 
 export const addFarmlots = async (surveyId, farmlots, connection) => {
-  if (!farmlots) return null;
 
   await connection.query(
     `INSERT INTO Farmlots
@@ -499,11 +475,6 @@ export const addFarmlots = async (surveyId, farmlots, connection) => {
 
 export const addCommunityIssues = async (surveyId, communityIssues, connection) => {
 
-  if (!communityIssues || !communityIssues.issues) {
-    console.log('No community issues data to insert');
-    return null;
-  }
-
   await connection.query(
     `INSERT INTO CommunityIssues (surveyID, issues) VALUES (?, ?)`,
     [ surveyId, communityIssues.issues ]
@@ -513,11 +484,6 @@ export const addCommunityIssues = async (surveyId, communityIssues, connection) 
 
 
 export const addLivestock = async (surveyId, livestock, connection) => {
-
-  if (!livestock || Object.keys(livestock).length === 0) {
-    console.log('No livestock data to insert');
-    return null;
-  }
   
   const livestockValues = Object.entries(livestock).map(([animal, data]) => {
     
@@ -546,11 +512,6 @@ export const addLivestock = async (surveyId, livestock, connection) => {
 
 export const addCropsPlanted = async (surveyId, cropsPlanted, connection) => {
 
-  if (!cropsPlanted || !cropsPlanted.crops || Object.keys(cropsPlanted.crops).length === 0) {
-    console.log('No crops planted data to insert');
-    return null;
-  }
-
   const cropsPlantedValues = Object.entries(cropsPlanted.crops)
     .filter(([crop, size]) => parseInt(size) > 0)
     .map(([crop, size]) => [
@@ -568,11 +529,6 @@ export const addCropsPlanted = async (surveyId, cropsPlanted, connection) => {
 };
 
 export const addFruitBearingTree = async (surveyId, treeData, connection) => {
-
-  if (!treeData || !treeData.tree || Object.keys(treeData.tree).length === 0) {
-    console.log('No fruit bearing tree data to insert');
-    return null;
-  }
 
   const fruitBearingTreeValues = Object.entries(treeData.tree)
     .filter(([tree, totalNumber]) => parseInt(totalNumber) > 0)
@@ -592,11 +548,6 @@ export const addFruitBearingTree = async (surveyId, treeData, connection) => {
 
 export const addFamilyResources = async (surveyId, resourcesData, connection) => {
 
-  if (!resourcesData || !resourcesData.resources || Object.keys(resourcesData.resources).length === 0) {
-    console.log('No family resources data to insert');
-    return null;
-  }
-
   const familyResourcesValues = Object.entries(resourcesData.resources)
     .filter(([resource, amount]) => parseFloat(amount.replace(/,/g, '').trim()) > 0)
     .map(([resource, amount]) => [
@@ -614,11 +565,6 @@ export const addFamilyResources = async (surveyId, resourcesData, connection) =>
 };
 
 export const addAppliancesOwn = async (surveyId, appliancesData, connection) => {
-
-  if (!appliancesData || !appliancesData.appliances || Object.keys(appliancesData.appliances).length === 0) {
-    console.log('No appliances data to insert');
-    return null;
-  }
 
   const appliancesOwnValues = Object.entries(appliancesData.appliances)
     .filter(([appliance, totalAppliances]) => parseInt(totalAppliances) > 0)
@@ -638,11 +584,6 @@ export const addAppliancesOwn = async (surveyId, appliancesData, connection) => 
 
 export const addAmenities = async (surveyId, amenities, connection) => {
 
-  if (!amenities || !amenities.amenities || Object.keys(amenities.amenities).length === 0) {
-    console.log('No amenities data to insert');
-    return null;
-  }
-
   const amenitiesValues = Object.entries(amenities.amenities)
     .filter(([amenity, totalAmenities]) => parseInt(totalAmenities) > 0)
     .map(([amenity, totalAmenities]) => [
@@ -660,8 +601,6 @@ export const addAmenities = async (surveyId, amenities, connection) => {
 };
 
 export const addServiceAvailed = async (surveyId, serviceAvailed, connection) => {
-
-  if (!serviceAvailed || serviceAvailed.length === 0) return null;
   
   const serviceAvailedValues = serviceAvailed.map(service => [
     surveyId,

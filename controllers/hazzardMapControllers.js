@@ -43,6 +43,7 @@ export const getHousehold = async (req, res) => {
         pi.middleName, 
         pi.lastName, 
         pi.suffix,
+        pi.relationToFamilyHead,
         pop.surveyID
       FROM PersonalInformation pi
       JOIN Population pop 

@@ -184,7 +184,7 @@ export const getYouthMasterlist = async (req, res) => {
     const [masterlist] = await pool.query(`
       SELECT 
           ROW_NUMBER() OVER (ORDER BY p.lastName ASC) AS ID,
-          CONCAT(p.lastName, ', ', p.firstName, ' ', p.middleName, ' ', IFNULL(p.suffix, '')) AS Name,
+          CONCAT_WS(' ', CONCAT_WS(', ', p.lastName, p.firstName), p.middleName, IFNULL(p.suffix, '')) AS Name,
           DATE(p.birthdate) AS Birthdate,
           TIMESTAMPDIFF(YEAR, p.birthdate, CURDATE()) AS Age,
           p.sex AS Sex,
@@ -269,92 +269,78 @@ export const getSoloParent = async (req, res) => {
     const { barangay } = req.params;
 
     const [masterlist] = await pool.query(`
-      WITH SoloParents AS (
+      -- 1. Solo Parent row
+      SELECT 
+          sp.ParentID AS 'ID',
+          CONCAT(pi.lastName, ', ', pi.firstName, ' ', IFNULL(pi.middleName, ''), 
+                IF(pi.suffix IS NOT NULL AND pi.suffix != '', CONCAT(' ', pi.suffix), '')
+          ) AS 'Name of Parent',
+          NULL AS 'Name of Child/Children',
+          pi.age AS 'Age',
+          pi.birthdate AS 'Date of Birth',
+          CASE WHEN pi.sex = 'M' THEN 'Male' WHEN pi.sex = 'F' THEN 'Female' ELSE pi.sex END AS 'Sex',
+          pr.educationalAttainment AS 'Educational Attainment',
+          pr.occupation AS 'Occupation/Source of Income',
+          CASE 
+              WHEN pi.civilStatus = 'Widowed' THEN 'Widow'
+              WHEN pi.civilStatus IN ('Single', 'Legally Separated', 'Separated in Fact') THEN 'Solo Parent'
+              WHEN pi.sex = 'Female' THEN 'Single Mother'
+              WHEN pi.sex = 'Male' THEN 'Single Father'
+              ELSE ''
+          END AS 'Remarks',
+          pi.soloParentIDNumber AS 'Solo Parent ID Number'
+      FROM (
           SELECT 
               ROW_NUMBER() OVER (ORDER BY pi.lastName, pi.firstName) AS ParentID,
-              pi.personalInfoID,
-              pi.lastName,
-              pi.firstName
+              pi.personalInfoID
           FROM Population p
           INNER JOIN PersonalInformation pi ON p.populationID = pi.populationID
-          WHERE pi.isSoloParent = TRUE
-      )
+          INNER JOIN Surveys s ON p.surveyID = s.surveyID
+          WHERE pi.isSoloParent = TRUE AND s.barangay = ?
+      ) AS sp
+      INNER JOIN PersonalInformation pi ON sp.personalInfoID = pi.personalInfoID
+      INNER JOIN Population p ON pi.populationID = p.populationID
+      INNER JOIN Surveys s ON p.surveyID = s.surveyID
+      LEFT JOIN ProfessionalInformation pr ON p.populationID = pr.populationID
 
+      UNION ALL
+
+      -- 2. Child rows
       SELECT 
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN sp.ParentID
-              ELSE NULL
-          END AS 'ID',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN CONCAT(pi.lastName, ', ', pi.firstName, ' ', IFNULL(pi.middleName, ''), 
-                          IF(pi.suffix IS NOT NULL AND pi.suffix != '', CONCAT(' ', pi.suffix), '')
-                    )
-              ELSE '' 
-          END AS 'Name of Parent',
+          NULL AS 'ID',
+          '' AS 'Name of Parent',
           CONCAT(c.lastName, ', ', c.firstName, ' ', IFNULL(c.middleName, ''), 
                 IF(c.suffix IS NOT NULL AND c.suffix != '', CONCAT(' ', c.suffix), '')
           ) AS 'Name of Child/Children',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN pi.age ELSE c.age
-          END AS 'Age',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN pi.birthdate ELSE c.birthdate
-          END AS 'Date of Birth',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN CASE WHEN pi.sex = 'M' THEN 'Male' WHEN pi.sex = 'F' THEN 'Female' ELSE pi.sex END
-              ELSE CASE WHEN c.sex = 'M' THEN 'Male' WHEN c.sex = 'F' THEN 'Female' ELSE c.sex END
-          END AS 'Sex',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN pr.educationalAttainment ELSE childProf.educationalAttainment
-          END AS 'Educational Attainment',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN pr.occupation
-              ELSE CASE WHEN c.inSchool = TRUE THEN 'Student'
-                        ELSE childProf.occupation
-                    END
+          c.age AS 'Age',
+          c.birthdate AS 'Date of Birth',
+          CASE WHEN c.sex = 'M' THEN 'Male' WHEN c.sex = 'F' THEN 'Female' ELSE c.sex END AS 'Sex',
+          cp.educationalAttainment AS 'Educational Attainment',
+          CASE 
+              WHEN c.inSchool = TRUE THEN 'Student'
+              ELSE cp.occupation
           END AS 'Occupation/Source of Income',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1 THEN 
-              CASE 
-                  WHEN pi.civilStatus = 'Widowed' THEN 'Widow'
-                  WHEN pi.civilStatus IN ('Single', 'Legally Separated', 'Separated in Fact') THEN 'Solo Parent'
-                  WHEN pi.sex = 'Female' THEN 'Single Mother'
-                  WHEN pi.sex = 'Male' THEN 'Single Father'
-                  ELSE ''
-              END 
-              ELSE ''
-          END AS 'Remarks',
-          CASE WHEN RANK() OVER (PARTITION BY pi.personalInfoID ORDER BY c.lastName, c.firstName) = 1
-              THEN pi.soloParentIDNumber
-              ELSE ''
-          END AS 'Solo Parent ID Number'
-      FROM 
-          Population p
-      INNER JOIN 
-          Surveys s ON p.surveyID = s.surveyID
-      INNER JOIN 
-          PersonalInformation pi ON p.populationID = pi.populationID
-      INNER JOIN
-          SoloParents sp ON pi.personalInfoID = sp.personalInfoID
-      LEFT JOIN 
-          ProfessionalInformation pr ON p.populationID = pr.populationID
-      LEFT JOIN 
-          Population p_child ON p_child.surveyID = p.surveyID
-      LEFT JOIN 
-          PersonalInformation c 
-              ON p_child.populationID = c.populationID
-            AND c.relationToFamilyHead IN ('Son', 'Daughter', 'Stepchild')
-      LEFT JOIN 
-          ProfessionalInformation childProf ON p_child.populationID = childProf.populationID
-      WHERE 
-          pi.isSoloParent = TRUE
-      AND s.barangay = ?
-      ORDER BY 
-          sp.ParentID, c.lastName, c.firstName;
-    `, [ barangay ]);
+          '' AS 'Remarks',
+          '' AS 'Solo Parent ID Number'
+      FROM (
+          SELECT 
+              pi.personalInfoID,
+              pi.populationID,
+              p.surveyID
+          FROM Population p
+          INNER JOIN PersonalInformation pi ON p.populationID = pi.populationID
+          INNER JOIN Surveys s ON p.surveyID = s.surveyID
+          WHERE pi.isSoloParent = TRUE AND s.barangay = ?
+      ) AS parents
+      INNER JOIN Population p_child ON p_child.surveyID = parents.surveyID
+      INNER JOIN PersonalInformation c ON p_child.populationID = c.populationID
+          AND c.relationToFamilyHead IN ('Son', 'Daughter', 'Stepchild')
+      LEFT JOIN ProfessionalInformation cp ON c.populationID = cp.populationID
+    `, [ barangay, barangay ]);
     
     res.json(masterlist);
   } catch (error) {
-    console.error('Error getting OSY masterlist:', error);
+    console.error('Error getting Solo Parent:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

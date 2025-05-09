@@ -32,7 +32,7 @@ router.get('/list', authenticateToken, seniorCitizenIDControllers.manageSeniorCi
 
 router.get('/view/:scApplicationID', authenticateToken, seniorCitizenIDControllers.viewApplication);
 
-router.delete('/delete/:scApplicationID', authenticateToken, seniorCitizenIDControllers.deleteApplication);
+router.delete('/delete/:populationID/:scApplicationID', authenticateToken, seniorCitizenIDControllers.deleteApplication);
 
 router.get('/get-personal-info/:populationID', authenticateToken, seniorCitizenIDControllers.getPersonDetails);
 

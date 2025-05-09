@@ -336,7 +336,8 @@ export const deleteApplication = async (req, res) => {
 
   const connection = await pool.getConnection();
   const scApplicationID = req.params.scApplicationID;
-  
+  const populationID = req.params.populationID;
+
   console.log(req.params);
 
   try {
@@ -353,16 +354,22 @@ export const deleteApplication = async (req, res) => {
     
     const applicantID = rows[0].applicantID;
 
-    await connection.query('DELETE FROM OscaInformation WHERE scApplicationID = ?', [scApplicationID]);
-    await connection.query('DELETE FROM FamilyComposition WHERE scApplicationID = ?', [scApplicationID]);
+    if(populationID) {
+      await connection.query('DELETE FROM OscaInformation WHERE scApplicationID = ?', [scApplicationID]);
+      await connection.query('DELETE FROM FamilyComposition WHERE scApplicationID = ?', [scApplicationID]);
+      await connection.query('DELETE FROM SeniorCitizenApplication WHERE scApplicationID = ?', [scApplicationID]);
 
-    await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
+    } else {
+      await connection.query('DELETE FROM OscaInformation WHERE scApplicationID = ?', [scApplicationID]);
+      await connection.query('DELETE FROM FamilyComposition WHERE scApplicationID = ?', [scApplicationID]);
 
-    await connection.query('DELETE FROM SeniorCitizenApplication WHERE scApplicationID = ?', [scApplicationID]);
-    
+      await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
+
+      await connection.query('DELETE FROM SeniorCitizenApplication WHERE scApplicationID = ?', [scApplicationID]);
+    }
     
     await connection.commit();
     

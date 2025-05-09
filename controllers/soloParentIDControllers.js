@@ -55,7 +55,7 @@ export const submitSoloParentID = async (req, res) => {
 
     if(populationID) {
       console.log("Updating Population...");
-      await soloParentIDModel.updatePopulation(applicantID, populationID, applicationData.personalInfo, connection);
+      await soloParentIDModel.updatePopulation(applicantID, populationID, spApplicationID, applicationData.personalInfo, connection);
     } else {
       console.log("Inserting Personal Info...");
       await soloParentIDModel.addPersonalInfo(applicantID, spApplicationID, applicationData.personalInfo, connection);
@@ -347,6 +347,7 @@ export const deleteApplication = async (req, res) => {
 
   const connection = await pool.getConnection();
   const spApplicationID = req.params.spApplicationID;
+  const populationID = req.params.populationID;
   
   console.log(req.params);
 
@@ -364,17 +365,25 @@ export const deleteApplication = async (req, res) => {
     
     const applicantID = rows[0].applicantID;
 
-    await connection.query('DELETE FROM EmergencyContact WHERE spApplicationID = ?', [spApplicationID]);
-    await connection.query('DELETE FROM ProblemNeeds WHERE spApplicationID = ?', [spApplicationID]);
-    await connection.query('DELETE FROM HouseholdComposition WHERE spApplicationID = ?', [spApplicationID]);
-    await connection.query('DELETE FROM OtherInformation WHERE spApplicationID = ?', [spApplicationID]);
+    if(populationID) {
+      await connection.query('DELETE FROM EmergencyContact WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM ProblemNeeds WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM HouseholdComposition WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM OtherInformation WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM SoloParentApplication WHERE spApplicationID = ?', [spApplicationID]);
+    } else {
+      await connection.query('DELETE FROM EmergencyContact WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM ProblemNeeds WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM HouseholdComposition WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM OtherInformation WHERE spApplicationID = ?', [spApplicationID]);
 
-    await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
 
-    await connection.query('DELETE FROM SoloParentApplication WHERE spApplicationID = ?', [spApplicationID]);
+      await connection.query('DELETE FROM SoloParentApplication WHERE spApplicationID = ?', [spApplicationID]);
+    }
     
     
     await connection.commit();

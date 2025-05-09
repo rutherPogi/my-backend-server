@@ -31,7 +31,7 @@ router.get('/list', authenticateToken, pwdIDControllers.managePwdId);
 
 router.get('/view/:pwdApplicationID', authenticateToken, pwdIDControllers.viewApplication);
 
-router.delete('/delete/:pwdApplicationID', authenticateToken, pwdIDControllers.deleteApplication);
+router.delete('/delete/:populationID/:pwdApplicationID', authenticateToken, pwdIDControllers.deleteApplication);
 
 router.get('/get-personal-info/:populationID', authenticateToken, pwdIDControllers.getPersonDetails);
 

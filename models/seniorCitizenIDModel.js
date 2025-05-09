@@ -260,7 +260,7 @@ export const updatePopulation = async (applicantID, populationID, personalInfo, 
            barangay = ?, 
            municipality = ?, 
            province = ?,  
-           mobileNumber = ?, 
+           mobileNumber = ?
        WHERE contactInfoID = ? AND populationID = ?`,
       [ applicantID, 
         personalInfo.street,  
@@ -268,7 +268,7 @@ export const updatePopulation = async (applicantID, populationID, personalInfo, 
         personalInfo.municipality,
         personalInfo.province,  
         personalInfo.mobileNumber, 
-        personalInfo.contactID,
+        personalInfo.contactInfoID,
         populationID
       ]
     );

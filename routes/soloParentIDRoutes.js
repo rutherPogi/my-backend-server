@@ -32,7 +32,7 @@ router.get('/list', authenticateToken, soloParentIDControllers.manageSoloParentI
 
 router.get('/view/:spApplicationID', authenticateToken, soloParentIDControllers.viewApplication);
 
-router.delete('/delete/:spApplicationID', authenticateToken, soloParentIDControllers.deleteApplication);
+router.delete('/delete/:populationID/:spApplicationID', authenticateToken, soloParentIDControllers.deleteApplication);
 
 router.get('/get-personal-info/:populationID', authenticateToken, soloParentIDControllers.getPersonDetails);
 

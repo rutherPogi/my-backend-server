@@ -196,117 +196,36 @@ export const updateSurvey = async (req, res) => {
     const isCreating = (IDtype, tableName) => surveyData[tableName].every(
       member => member[IDtype] === null || member[IDtype] === undefined
     );
-    
 
     console.log("Updating Survey Details");
     await updateSurveyModel.updateSurvey(surveyData.surveyData, connection);
 
-
-    if(householdID === null || householdID === undefined) {
-      console.log("Creating Household");
-      await surveyModel.addHousehold(surveyData.surveyData, connection);
-    } else {
-      console.log("Updating Household");
-      await updateSurveyModel.updateHousehold(surveyData.surveyData, connection);
-    }
+    console.log("Updating Household");
+    await updateSurveyModel.updateHousehold(surveyData.surveyData, connection);
 
     if(isCreating('populationID', 'familyMembers')) {
-      console.log("Creating Population");
+      console.log("Creating Family Profile");
       await surveyModel.addPopulation(populationID, surveyID, surveyData.familyMembers, connection);
     } else {
-      console.log("Updating Population");
-      await updateSurveyModel.updatePopulation(surveyData.familyMembers, connection);
+      console.log("Updating Family Profile");
+      await updateSurveyModel.updateFamilyProfile(surveyData.familyMembers, surveyData.houseLocation, connection);
     }
+
+    console.log("Updating Food Expenses");
+    await updateSurveyModel.updateFoodExpenses(surveyID, surveyData.foodExpenses, connection);
     
-    if(isCreating('personalInfoID', 'familyMembers')) {
-      console.log("Creating Personal Info");
-      await surveyModel.addPersonalInfo(populationID, surveyData.familyMembers, connection);
-    } else {
-      console.log("Updating Personal Info");
-      await updateSurveyModel.updatePersonalInfo(surveyData.familyMembers, connection);
-    }
+    console.log("Updating Education Expenses");
+    await updateSurveyModel.updateEducationExpenses(surveyID, surveyData.educationExpenses, connection);
 
-    if(isCreating('professionalInfoID', 'familyMembers')) {
-      console.log("Creating Professional Info");
-      await surveyModel.addProfessionalInfo(populationID, surveyData.familyMembers, connection);
-    } else {
-      console.log("Updating Professional Info");
-      await updateSurveyModel.updateProfessionalInfo(surveyData.familyMembers, connection);
-    }
+    console.log("Updating Family Expenses");
+    await updateSurveyModel.updateFamilyExpenses(surveyID, surveyData.familyExpenses, connection);
 
-    if(isCreating('contactInfoID', 'familyMembers')) {
-      console.log("Creating Contact Info");
-      await surveyModel.addContactInfo(populationID, surveyData.familyMembers, surveyData.houseLocation, connection);
-    } else {
-      console.log("Updating Contact Info");
-      await updateSurveyModel.updateContactInfo(surveyData.familyMembers, surveyData.houseLocation, connection);
-    }
+    console.log("Updating Monthly Expenses");
+    await updateSurveyModel.updateMonthlyExpenses(surveyID, surveyData.monthlyExpenses, connection);
 
-    if(isCreating('governmentID', 'familyMembers')) {
-      console.log("Creating Government ID");
-      await surveyModel.addGovernmentID(populationID, surveyData.familyMembers, connection);
-    } else {
-      console.log("Updating Government ID");
-      await updateSurveyModel.updateGovernmentID(surveyData.familyMembers, connection);
-    }
+    console.log("Updating House Info");
+    await updateSurveyModel.updateHouseInfo(surveyData.houseInfo, surveyData.houseLocation, connection);
 
-    if(isCreating('governmentAffiliationID', 'familyMembers')) {
-      console.log("Creating Government Affiliation");
-      await surveyModel.addGovernmentAffiliation(populationID, surveyData.familyMembers, connection);
-    } else {
-      console.log("Updating Government Affiliation");
-      await updateSurveyModel.updateGovernmentAffiliation(surveyData.familyMembers, connection);
-    }
-
-    if(isCreating('nonIvatanID', 'familyMembers')) {
-      console.log("Creating Ipula/Non-Ivatan");
-      await surveyModel.addNonIvatan(populationID, surveyData.familyMembers, connection);
-    } else {
-      console.log("Updating Ipula/Non-Ivatan");
-      await updateSurveyModel.updateNonIvatan(surveyData.familyMembers, connection);
-    }
-
-    
-    if(foodExpensesID === null || foodExpensesID === undefined) {
-      console.log("Creating Food Expenses");
-      await surveyModel.addFoodExpenses(surveyID, surveyData.foodExpenses, connection);
-    } else {
-      console.log("Updating Food Expenses");
-      await updateSurveyModel.updateFoodExpenses(surveyID, surveyData.foodExpenses, connection);
-    }
-
-    if(educationExpensesID === null || educationExpensesID === undefined) {
-      console.log("Creating Education Expenses");
-      await surveyModel.addEducationExpenses(surveyID, surveyData.educationExpenses, connection);
-    } else {
-      console.log("Updating Education Expenses");
-      await updateSurveyModel.updateEducationExpenses(surveyID, surveyData.educationExpenses, connection);
-    }
-
-    if(familyExpensesID === null || familyExpensesID === undefined) {
-      console.log("Creating Family Expenses");
-      await surveyModel.addFamilyExpenses(surveyID, surveyData.familyExpenses, connection);
-    } else {
-      console.log("Updating Family Expenses");
-      await updateSurveyModel.updateFamilyExpenses(surveyID, surveyData.familyExpenses, connection);
-    }
-
-    if(monthlyExpensesID === null || monthlyExpensesID === undefined) {
-      console.log("Creating Monthly Expenses");
-      await surveyModel.addMonthlyExpenses(surveyID, surveyData.monthlyExpenses, connection);
-    } else {
-      console.log("Updating Monthly Expenses");
-      await updateSurveyModel.updateMonthlyExpenses(surveyID, surveyData.monthlyExpenses, connection);
-    }
-
-    if(houseInfoID === null || houseInfoID === undefined) {
-      console.log("Creating House Info");
-      await surveyModel.addHouseInfo(surveyID, surveyData.houseInfo, surveyData.houseLocation, connection);
-    } else {
-      console.log("Updating House Info");
-      await updateSurveyModel.updateHouseInfo(surveyData.houseInfo, surveyData.houseLocation, connection);
-    }
-    
 
     if(req.files && req.files.length > 0) {
 
@@ -337,90 +256,36 @@ export const updateSurvey = async (req, res) => {
       await updateSurveyModel.updateHouseImage(surveyData.houseInfo, surveyData.houseLocation, connection);
     }
 
-    if(waterInfoID === null || waterInfoID === undefined) {
-      console.log("Creating Water Info");
-      await surveyModel.addWaterInfo(surveyID, surveyData.waterInfo, connection);
-    } else {
-      console.log("Updating Water Info");
-      await updateSurveyModel.updateWaterInfo(surveyID, surveyData.waterInfo, connection);
-    }
+    console.log("Updating Water Info");
+    await updateSurveyModel.updateWaterInfo(surveyID, surveyData.waterInfo, connection);
 
-    if(farmlotID === null || farmlotID === undefined) {
-      console.log("Creating Farmlots");
-      await surveyModel.addFarmlots(surveyID, surveyData.farmlots, connection);
-    } else {
-      console.log("Updating Farmlots");
-      await updateSurveyModel.updateFarmlots(surveyID, surveyData.farmlots, connection);
-    }
+    console.log("Updating Farmlots");
+    await updateSurveyModel.updateFarmlots(surveyID, surveyData.farmlots, connection);
 
-    if(communityIssuesID === null || communityIssuesID === undefined) {
-      console.log("Creating Community Issues");
-      await surveyModel.addCommunityIssues(surveyID, surveyData.communityIssues, connection);
-    } else {
-      console.log("Updating Community Issues");
-      await updateSurveyModel.updateCommunityIssues(surveyID, surveyData.communityIssues, connection);
-    }
+    console.log("Updating Community Issues");
+    await updateSurveyModel.updateCommunityIssues(surveyID, surveyData.communityIssues, connection);
 
-    if(isCreating('serviceAvailedID', 'serviceAvailed')) {
-      console.log("Creating Service Availed");
-      await surveyModel.addServiceAvailed(surveyID, surveyData.serviceAvailed, connection);
-    } else {
-      console.log("Updating Service Availed");
-      await updateSurveyModel.updateServiceAvailed(surveyID, surveyData.serviceAvailed, connection);
-    }
+    console.log("Updating Service Availed");
+    await updateSurveyModel.updateServiceAvailed(surveyID, surveyData.serviceAvailed, connection);
 
-    const isCreatingObject = (IDtype, tableName) =>
-      Object.values(surveyData[tableName]).every(
-        member => member[IDtype] === null || member[IDtype] === undefined
-      );
+    console.log("Updating Livestock");
+    await updateSurveyModel.updateLivestock(surveyID, surveyData.livestock, connection);
 
-    if(isCreatingObject('livestockID', 'livestock')) {
-      console.log("Creating Livestock");
-      await surveyModel.addLivestock(surveyID, surveyData.livestock, connection);
-    } else {
-      console.log("Updating Livestock");
-      await updateSurveyModel.updateLivestock(surveyID, surveyData.livestock, connection);
-    }
+    console.log("Updating CropsPlanted");
+    await updateSurveyModel.updateCropsPlanted(surveyID, surveyData.cropsPlanted, connection);
 
-    if(!surveyData.cropsPlanted) {
-      console.log("Creating CropsPlanted");
-      await surveyModel.addCropsPlanted(surveyID, surveyData.cropsPlanted, connection);
-    } else {
-      console.log("Updating CropsPlanted");
-      await updateSurveyModel.updateCropsPlanted(surveyID, surveyData.cropsPlanted, connection);
-    }
 
-    if(!surveyData.fruitBearingTree) {
-      console.log("Creating FruitBearingTree");
-      await surveyModel.addFruitBearingTree(surveyID, surveyData.fruitBearingTree, connection);
-    } else {
-      console.log("Updating FruitBearingTree");
-      await updateSurveyModel.updateFruitBearingTree(surveyID, surveyData.fruitBearingTree, connection);
-    }
+    console.log("Updating FruitBearingTree");
+    await updateSurveyModel.updateFruitBearingTree(surveyID, surveyData.fruitBearingTree, connection);
 
-    if(!surveyData.familyResources) {
-      console.log("Creating FamilyResources");
-      await surveyModel.addFamilyResources(surveyID, surveyData.familyResources, connection);
-    } else {
-      console.log("Updating FamilyResources");
-      await updateSurveyModel.updateFamilyResources(surveyID, surveyData.familyResources, connection);
-    }
-    
-    if(!surveyData.appliancesOwn) {
-      console.log("Creating AppliancesOwn");
-      await surveyModel.addAppliancesOwn(surveyID, surveyData.appliancesOwn, connection);
-    } else {
-      console.log("Updating AppliancesOwn");
-      await updateSurveyModel.updateAppliancesOwn(surveyID, surveyData.appliancesOwn, connection);
-    }
+    console.log("Updating FamilyResources");
+    await updateSurveyModel.updateFamilyResources(surveyID, surveyData.familyResources, connection);
 
-    if(!surveyData.amenitiesOwn) {
-      console.log("Creating Amenities");
-      await surveyModel.addAmenities(surveyID, surveyData.amenitiesOwn, connection);
-    } else {
-      console.log("Updating Amenities");
-      await updateSurveyModel.updateAmenities(surveyID, surveyData.amenitiesOwn, connection);
-    }
+    console.log("Updating AppliancesOwn");
+    await updateSurveyModel.updateAppliancesOwn(surveyID, surveyData.appliancesOwn, connection);
+
+    console.log("Updating Amenities");
+    await updateSurveyModel.updateAmenities(surveyID, surveyData.amenitiesOwn, connection);
 
 
     await connection.commit();

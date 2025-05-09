@@ -286,7 +286,7 @@ export const addEmergencyContact = async (spApplicationID, emergencyContact, con
   return result;
 };
 
-export const updatePopulation = async (applicantID, populationID, personalInfo, connection) => {
+export const updatePopulation = async (applicantID, populationID, spApplicationID, personalInfo, connection) => {
 
   await connection.beginTransaction();
 
@@ -318,7 +318,7 @@ export const updatePopulation = async (applicantID, populationID, personalInfo, 
         personalInfo.birthplace,
         personalInfo.civilStatus,
         personalInfo.religion,
-        personalInfo.soloParentIDNumber, 
+        spApplicationID, 
         personalInfo.personalInfoID,
         populationID ]
     );

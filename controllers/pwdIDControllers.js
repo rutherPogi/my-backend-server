@@ -305,6 +305,7 @@ export const deleteApplication = async (req, res) => {
 
   const connection = await pool.getConnection();
   const pwdApplicationID = req.params.pwdApplicationID;
+  const populationID = req.params.populationID;
   
   console.log(req.params);
 
@@ -322,16 +323,25 @@ export const deleteApplication = async (req, res) => {
     
     const applicantID = rows[0].applicantID;
 
-    await connection.query('DELETE FROM Officers WHERE pwdApplicationID = ?', [pwdApplicationID]);
-    await connection.query('DELETE FROM DisabilityInformation WHERE pwdApplicationID = ?', [pwdApplicationID]);
+    if(populationID) {
+      await connection.query('DELETE FROM Officers WHERE pwdApplicationID = ?', [pwdApplicationID]);
+      await connection.query('DELETE FROM DisabilityInformation WHERE pwdApplicationID = ?', [pwdApplicationID]);
+      await connection.query('DELETE FROM pwdApplication WHERE pwdApplicationID = ?', [pwdApplicationID]);
+    } else {
+      await connection.query('DELETE FROM Officers WHERE pwdApplicationID = ?', [pwdApplicationID]);
+      await connection.query('DELETE FROM DisabilityInformation WHERE pwdApplicationID = ?', [pwdApplicationID]);
 
-    await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
-    await connection.query('DELETE FROM GovernmentAffiliation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM GovernmentIDs WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM PersonalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ProfessionalInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM ContactInformation WHERE applicantID = ?', [applicantID]);
+      await connection.query('DELETE FROM GovernmentAffiliation WHERE applicantID = ?', [applicantID]);
 
-    await connection.query('DELETE FROM pwdApplication WHERE pwdApplicationID = ?', [pwdApplicationID]);
+      await connection.query('DELETE FROM pwdApplication WHERE pwdApplicationID = ?', [pwdApplicationID]);
+
+    }
+
+    
     
     
     await connection.commit();

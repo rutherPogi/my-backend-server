@@ -47,13 +47,21 @@ export const updateHousehold = async (surveyData, connection) => {
 
 // POPULATION
 
-export const updatePopulation = async (familyMembers, connection) => {
+
+export const updateFamilyProfile = async (familyMembers, houseLocation, connection) => {
 
   if (!familyMembers || familyMembers.length === 0) return null;
 
+  function formatDate(date) {
+    if (!date) return null;
+    const d = new Date(date);
+    if (isNaN(d)) return null;
+    return d.toISOString().split('T')[0]; // returns 'YYYY-MM-DD'
+  }
+
   const updatePromises = familyMembers.map(async (member) => {
 
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE Population
        SET healthStatus = ?,
            remarks = ?
@@ -65,23 +73,8 @@ export const updatePopulation = async (familyMembers, connection) => {
         member.surveyID
       ]
     );
-    
-    console.log('[ UPDATED ] Population')
-    return result;
-  });
-  
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
 
-export const updatePersonalInfo = async (familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE PersonalInformation
        SET firstName = ?,
            middleName = ?,
@@ -123,23 +116,8 @@ export const updatePersonalInfo = async (familyMembers, connection) => {
         member.populationID
       ]
     );
-    
-    console.log('[ UPDATED ] Personal Info')
-    return result;
-  });
 
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
-
-export const updateProfessionalInfo = async (familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE ProfessionalInformation
        SET educationalAttainment = ?,
            skills = ?,
@@ -158,23 +136,8 @@ export const updateProfessionalInfo = async (familyMembers, connection) => {
         //member.surveyID
       ]
     );
-    
-    console.log('[ UPDATED ] Professional Info')
-    return result;
-  });
 
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
-
-export const updateContactInfo = async (familyMembers, houseLocation, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE ContactInformation
        SET mobileNumber = ?,
            street = ?,
@@ -190,47 +153,19 @@ export const updateContactInfo = async (familyMembers, houseLocation, connection
         member.populationID
       ]
     );
-    
-    console.log('[ UPDATED ] Contact Info')
-    return result;
-  });
 
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
-
-export const updateGovernmentID = async (familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE GovernmentIDs
        SET philhealthNumber = ?
        WHERE govID = ? AND populationID = ?`,
       [
-        member.philhealthNumber || null
+        member.philhealthNumber || null,
+        member.govID,
+        member.populationID
       ]
     );
-    
-    console.log('[ UPDATED ] Government ID')
-    return result;
-  });
 
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
-
-export const updateGovernmentAffiliation = async (familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE GovernmentAffiliation
        SET isAffiliated = ?,
            asOfficer = ?,
@@ -239,30 +174,15 @@ export const updateGovernmentAffiliation = async (familyMembers, connection) => 
        WHERE governmentAffiliationID = ? AND populationID = ?`,
       [
         member.isAffiliated,
-        member.asOfficer || null,
-        member.asMember || null,
+        formatDate(member.asOfficer),
+        formatDate(member.asMember),
         member.organizationAffiliated ,
         member.governmentAffiliationID,
         member.populationID
       ]
     );
-    
-    console.log('[ UPDATED ] Government Affiliation')
-    return result;
-  });
 
-  // Execute all updates and collect results
-  const results = await Promise.all(updatePromises);
-  return results;
-};
-
-export const updateNonIvatan = async (familyMembers, connection) => {
-
-  if (!familyMembers || familyMembers.length === 0) return null;
-
-  const updatePromises = familyMembers.map(async (member) => {
-
-    const [result] = await connection.query(
+    await connection.query(
       `UPDATE NonIvatan
        SET isIpula = ?,
            settlementDetails = ?,
@@ -281,14 +201,14 @@ export const updateNonIvatan = async (familyMembers, connection) => {
         member.isTransient,
         member.houseOwner ,
         member.transientRegistered,
-        member.dateRegistered || null,
+        formatDate(member.dateRegistered),
         member.nonIvatanID,
         member.populationID
       ]
     );
     
-    console.log('[ UPDATED ] Ipula/Non-Ivatan')
-    return result;
+    
+    return console.log('[ UPDATED ] FAMILY PROFILE');
   });
 
   // Execute all updates and collect results
