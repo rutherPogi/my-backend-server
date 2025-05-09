@@ -179,7 +179,7 @@ export const updateSurvey = async (req, res) => {
     await connection.beginTransaction();
 
     const surveyData = JSON.parse(req.body.surveyData);
-    console.log('SURVEY DATA:', surveyData);
+
     const surveyID = surveyData.surveyData.surveyID;
     const householdID = surveyData.surveyData.householdID;
     const populationID = `P${surveyID}`;

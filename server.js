@@ -15,14 +15,12 @@ import databankRoutes from './routes/databankRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+//app.use(cors());
 
-/*
 app.use(cors({
   origin: 'https://e-tbayatmswdo.com',
   credentials: true
 }));
-*/
 
 
 app.use(express.json({ limit: '50mb' }));

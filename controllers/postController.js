@@ -141,7 +141,7 @@ export const deleteMultiplePosts = async (req, res) => {
 
 // 1. Get post by ID (existing implementation)
 export const getPostById = async (req, res) => {
-  console.log('HELLO');
+
   try {
     const [rows] = await pool.query(
       'SELECT * FROM Posts WHERE postID = ?',

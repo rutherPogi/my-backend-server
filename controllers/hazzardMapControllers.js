@@ -47,7 +47,7 @@ export const getHousehold = async (req, res) => {
       FROM PersonalInformation pi
       JOIN Population pop 
         ON pi.populationID = pop.populationID`);
-    console.log('HOUSEHOLD:', household);
+
     res.status(200).json(household);
   } catch (error) {
     console.error('Error getting Household:', error);

@@ -142,8 +142,6 @@ export const addPersonalInfo = async (populationID, familyMembers, connection) =
 
 export const addProfessionalInfo = async (populationID, familyMembers, connection) => {
 
-  console.log(familyMembers);
-
   if (!familyMembers || familyMembers.length === 0) return null;
   
   const familyMemberValues = familyMembers.map((member, index) => [
