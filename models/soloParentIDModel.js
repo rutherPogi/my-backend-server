@@ -324,8 +324,8 @@ export const updatePopulation = async (applicantID, populationID, spApplicationI
     );
 
     console.log('Applicant ID:', applicantID);
-    console.log('Contact ID:', contactID);
-    console.log('Applicant ID:', street, barangay, municipality, province, mobileNumber);
+    console.log('Contact ID:', personalInfo.contactID);
+    console.log('Applicant ID:', personalInfo.street, personalInfo.barangay, personalInfo.municipality, personalInfo.province, personalInfo.mobileNumber);
 
     await connection.query(
       `UPDATE ContactInformation 
