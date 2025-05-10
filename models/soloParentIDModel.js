@@ -287,7 +287,7 @@ export const addEmergencyContact = async (spApplicationID, emergencyContact, con
 };
 
 export const updatePopulation = async (applicantID, populationID, spApplicationID, personalInfo, connection) => {
-
+  
   await connection.beginTransaction();
 
   try {
@@ -322,6 +322,10 @@ export const updatePopulation = async (applicantID, populationID, spApplicationI
         personalInfo.personalInfoID,
         populationID ]
     );
+
+    console.log('Applicant ID:', applicantID);
+    console.log('Contact ID:', contactID);
+    console.log('Applicant ID:', street, barangay, municipality, province, mobileNumber);
 
     await connection.query(
       `UPDATE ContactInformation 
