@@ -323,10 +323,6 @@ export const updatePopulation = async (applicantID, populationID, spApplicationI
         populationID ]
     );
 
-    console.log('Applicant ID:', applicantID);
-    console.log('Contact ID:', personalInfo.contactID);
-    console.log('Applicant ID:', personalInfo.street, personalInfo.barangay, personalInfo.municipality, personalInfo.province, personalInfo.mobileNumber);
-
     await connection.query(
       `UPDATE ContactInformation 
        SET applicantID = ?, 
@@ -344,7 +340,7 @@ export const updatePopulation = async (applicantID, populationID, spApplicationI
         personalInfo.province, 
         personalInfo.mobileNumber, 
         personalInfo.emailAddress,
-        personalInfo.contactID,
+        personalInfo.contactInfoID,
         populationID
       ]
     );
